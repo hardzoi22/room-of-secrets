@@ -1,3 +1,6 @@
+============================================================
+FILE: src/store.tsx
+============================================================
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import type {
   ChatMessage, StrangerPersona, Review, Referral,
@@ -277,82 +280,4 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setActiveTab('lobby');
   }, [ratingReaction, showToast]);
 
-  const revealIdentity = useCallback(() => {
-    if (identityRequestState === 'accepted') return;
-    if (!spendStars(50, 'Раскрытие личности')) return;
-    setIdentityRequestState('sent');
-    setTimeout(() => {
-      setIdentityRequestState('accepted');
-      setChatMessages(prev => [...prev, {
-        id: 'reveal-sys', sender: 'system',
-        text: `🔓 ЛИЧНОСТИ РАСКРЫТЫ! ${selectedStranger.name}, ${selectedStranger.age} лет, ${selectedStranger.city}`,
-        time: getCurrentTime()
-      }]);
-    }, 2000);
-  }, [identityRequestState, spendStars, selectedStranger]);
-
-  const extendChat = useCallback(() => {
-    if (!spendStars(15, 'Продление чата')) return;
-    setChatTimer(prev => prev + 900);
-  }, [spendStars]);
-
-  const unlockMedia = useCallback(() => {
-    if (isRoomPlus) {
-      setMediaUnblocked(true);
-      setMediaTimer(300);
-      showToast('Медиа разблокировано (Room+)', 'success');
-      return;
-    }
-    if (!spendStars(10, 'Разблокировка медиа')) return;
-    setMediaUnblocked(true);
-    setMediaTimer(300);
-  }, [isRoomPlus, spendStars, showToast]);
-
-  const toggleRoomPlus = useCallback(() => {
-    if (isRoomPlus) {
-      setIsRoomPlus(false);
-      showToast('Room+ отключён', 'info');
-      return;
-    }
-    if (!spendStars(199, 'Подписка Room+')) return;
-    setIsRoomPlus(true);
-    showToast('Room+ активирован!', 'success');
-  }, [isRoomPlus, spendStars, showToast]);
-
-  const addReferral = useCallback((referral: Referral) => {
-    setReferrals(prev => [referral, ...prev]);
-    setStarsBalance(prev => prev + 50);
-    showToast(`+50 ⭐ за реферала ${referral.name}`, 'success');
-  }, [showToast]);
-
-  const loadStranger = useCallback((id: string) => {
-    const preset = STRANGER_PERSONAS.find(p => p.id === id);
-    if (preset) setSelectedStranger(preset);
-  }, []);
-
-  const value: AppState = {
-    activeTab, setActiveTab,
-    chatSessionActive, chatMessages, isStrangerTyping, chatTimer, setChatTimer,
-    selectedStranger, identityRequestState, mediaUnblocked, setMediaUnblocked,
-    mediaTimer, setMediaTimer,
-    starsBalance, isRoomPlus,
-    userKarma, chatsCount, totalReactions, reviews, referrals,
-    filters, setFilters,
-    showRatingScreen, ratingReaction, isSearching, searchProgress,
-    showSmokeScreen, smokeType, smokeMessage, toasts,
-    startSearch, cancelSearch, sendMessage, exitChat, burnBridge,
-    submitRating, revealIdentity, extendChat, unlockMedia, spendStars,
-    toggleRoomPlus, addReferral, setRatingReaction: setRatingReactionState,
-    loadStranger, addStars, showToast, removeToast,
-  };
-
-  return React.createElement(AppContext.Provider, { value }, children);
-}
-
-export function useApp() {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useApp must be used within AppProvider');
-  }
-  return context;
-}
+  const revealIdentity = useCallback(() => <response clipped><NOTE>Result is longer than **10000 characters**, will be **truncated**.</NOTE>
