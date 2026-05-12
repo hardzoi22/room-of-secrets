@@ -4,7 +4,12 @@ import {
   Clock, Flame, Share2, LogOut, Compass, Sliders, Check, X, Award, RefreshCw, Send,
   Zap, Copy, Info, CheckCircle2, LockKeyhole, AlertTriangle, ChevronRight, ShieldCheck
 } from 'lucide-react';
-
+// ============================================
+// 🔍 DETECT ENVIRONMENT
+// ============================================
+const tg = (window as any).Telegram?.WebApp;
+const isTelegram = !!tg?.initDataUnsafe?.user;
+const isDevMode = !isTelegram; // В Telegram скрываем дев-тулзы
 // --- Types ---
 interface StrangerPersona {
   id: string;
