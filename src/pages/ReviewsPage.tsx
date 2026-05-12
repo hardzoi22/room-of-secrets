@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+============================================================
+FILE: src/pages/ReviewsPage.tsx
+============================================================
+import { useState } from 'react';
 import { Award, Lock, LockKeyhole, TrendingUp, MessageCircle } from 'lucide-react';
 import { useApp } from '@/store';
 
@@ -138,3 +141,91 @@ export default function ReviewsPage() {
     </div>
   );
 }
+
+
+============================================================
+FILE: src/pages/ProfilePage.tsx
+============================================================
+import { useState } from 'react';
+import { Share2, Copy, Check, Zap, RefreshCw, Coins, Crown, Gift } from 'lucide-react';
+import { useApp } from '@/store';
+
+export default function ProfilePage() {
+  const {
+    starsBalance, isRoomPlus, userKarma, chatsCount,
+    referrals, toggleRoomPlus, addReferral, addStars
+  } = useApp();
+
+  const [copiedReferral, setCopiedReferral] = useState(false);
+
+  const handleCopyReferral = () => {
+    const link = 't.me/RoomOfSecretsBot?start=ref_1829a';
+    navigator.clipboard.writeText(link).then(() => {
+      setCopiedReferral(true);
+      setTimeout(() => setCopiedReferral(false), 2000);
+    });
+  };
+
+  const handleSimulateInvite = () => {
+    const newRef = {
+      id: Date.now(),
+      name: '@friend_' + Math.floor(Math.random() * 999),
+      starsEarned: Math.floor(Math.random() * 30) + 10,
+      date: new Date().toLocaleDateString()
+    };
+    addReferral(newRef);
+  };
+
+  return (
+    <div className="flex-1 p-5 space-y-5 overflow-y-auto custom-chat-scroll">
+      {/* User Card */}
+      <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 border border-purple-500/20 p-4 rounded-2xl flex items-center space-x-3.5">
+        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center font-bold text-xl text-white text-glow-purple shrink-0">
+          U
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center space-x-1.5">
+            <span className="text-sm font-extrabold text-white truncate">@secret_agent</span>
+            {isRoomPlus && (
+              <span className="bg-gradient-to-r from-purple-400 to-cyan-400 text-[#050506] text-[8px] uppercase font-black tracking-widest px-1.5 py-0.5 rounded shrink-0 flex items-center gap-0.5">
+                <Crown className="w-3 h-3" /> Room+
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-3 mt-1">
+            <span className="text-[10px] text-gray-400">Karma: <span className="text-purple-300 font-bold">{userKarma}</span>/100</span>
+            <span className="text-[10px] text-gray-400">Диалогов: <span className="text-white font-bold">{chatsCount}</span></span>
+          </div>
+        </div>
+      </div>
+
+      {/* Stars Balance */}
+      <div className="bg-[#1C1C1F]/60 border border-white/[0.04] p-4 rounded-2xl">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs font-bold text-gray-300 flex items-center gap-1">
+            <Coins className="w-4 h-4 text-amber-400" /> Баланс Stars
+          </span>
+          <div className="flex items-center space-x-1">
+            <span className="text-2xl font-mono font-extrabold text-amber-300">{starsBalance}</span>
+            <span className="text-xs text-amber-400">⭐</span>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => addStars(100)}
+            className="flex-1 py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-300 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1"
+          >
+            <Gift className="w-3.5 h-3.5" /> +100 ⭐ (тест)
+          </button>
+          <button
+            onClick={() => addStars(-starsBalance + 50)}
+            className="px-3 py-2 bg-white/[0.03] text-gray-400 hover:text-white rounded-xl transition"
+            title="Сбросить баланс"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Room+ */}
+      <div className="bg-[#1C1C1F] border border-p<response clipped><NOTE>Result is longer than **10000 characters**, will be **truncated**.</NOTE>
