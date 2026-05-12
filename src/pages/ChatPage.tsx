@@ -1,3 +1,6 @@
+============================================================
+FILE: src/pages/ChatPage.tsx
+============================================================
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Clock, User, Flame, X, Lock, CheckCircle2,
@@ -208,53 +211,4 @@ export default function ChatPage() {
             <Clock className="w-3 h-3 text-amber-400 shrink-0" />
             <span>⏰ +15м (15 ⭐)</span>
           </button>
-        </div>
-
-        {/* Input Form */}
-        <form onSubmit={handleSubmit} className="bg-[#0A0A0B] p-2.5 border-t border-white/[0.05] flex items-center space-x-2">
-          <button
-            type="button"
-            onClick={handleSendPhoto}
-            className={`p-2 rounded-xl transition shrink-0 ${
-              mediaUnblocked || isRoomPlus
-                ? 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20'
-                : 'bg-[#1C1C1F] text-gray-500 hover:text-gray-300'
-            }`}
-            aria-label="Отправить фото"
-          >
-            <ImageIcon className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={handleSendVoice}
-            className={`p-2 rounded-xl transition shrink-0 ${
-              mediaUnblocked || isRoomPlus
-                ? 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20'
-                : 'bg-[#1C1C1F] text-gray-500 hover:text-gray-300'
-            }`}
-            aria-label="Отправить голосовое"
-          >
-            <Volume2 className="w-4 h-4" />
-          </button>
-
-          <input
-            type="text"
-            value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
-            placeholder={isStrangerTyping ? 'Печатает ответ...' : 'Напишите сообщение...'}
-            className="flex-1 min-w-0 bg-[#1C1C1F] border border-white/[0.05] text-xs text-white rounded-xl py-2 px-3 placeholder-gray-500 focus:outline-none focus:border-purple-400 transition"
-          />
-
-          <button
-            type="submit"
-            disabled={!messageInput.trim()}
-            className="p-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:opacity-90 active:scale-95 transition flex items-center justify-center shadow-glow-purple disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-            aria-label="Отправить"
-          >
-            <Send className="w-4 h-4" />
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-}
+        <<response clipped><NOTE>Result is longer than **10000 characters**, will be **truncated**.</NOTE>
