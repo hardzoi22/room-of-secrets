@@ -1,6 +1,3 @@
-============================================================
-FILE: src/pages/ChatPage.tsx
-============================================================
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Clock, User, Flame, X, Lock, CheckCircle2,
@@ -17,8 +14,7 @@ export default function ChatPage() {
   } = useApp();
 
   const [messageInput, setMessageInput] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<<HTMLDivElement>(null);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -55,7 +51,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* === TOP HEADER (always fixed at top) === */}
+      {/* === TOP HEADER (fixed at top) === */}
       <div className="shrink-0 bg-[#101012] px-3.5 py-2.5 border-b border-white/[0.05] flex items-center justify-between z-10">
         <div className="flex items-center space-x-2.5 min-w-0">
           <div className="relative shrink-0">
@@ -118,11 +114,8 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* === SCROLLABLE MESSAGES AREA (flex-1, takes all available space) === */}
-      <div
-        ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 space-y-3 flex flex-col bg-noise bg-[#08080a] min-h-0 custom-chat-scroll"
-      >
+      {/* === SCROLLABLE MESSAGES AREA === */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 space-y-3 flex flex-col bg-noise bg-[#08080a] min-h-0 custom-chat-scroll">
         {chatMessages.map((msg) => {
           if (msg.sender === 'system') {
             return (
@@ -179,7 +172,7 @@ export default function ChatPage() {
         <div ref={messagesEndRef} className="shrink-0 h-0" />
       </div>
 
-      {/* === BOTTOM AREA (always fixed at bottom) === */}
+      {/* === BOTTOM AREA (fixed at bottom) === */}
       <div className="shrink-0">
         {/* Media Bar */}
         <div className="bg-[#101012]/80 border-t border-white/[0.04] p-2 flex items-center justify-between space-x-1.5">
@@ -211,4 +204,53 @@ export default function ChatPage() {
             <Clock className="w-3 h-3 text-amber-400 shrink-0" />
             <span>⏰ +15м (15 ⭐)</span>
           </button>
-        <<response clipped><NOTE>Result is longer than **10000 characters**, will be **truncated**.</NOTE>
+        </div>
+
+        {/* Input Form */}
+        <form onSubmit={handleSubmit} className="bg-[#0A0A0B] p-2.5 border-t border-white/[0.05] flex items-center space-x-2">
+          <button
+            type="button"
+            onClick={handleSendPhoto}
+            className={`p-2 rounded-xl transition shrink-0 ${
+              mediaUnblocked || isRoomPlus
+                ? 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20'
+                : 'bg-[#1C1C1F] text-gray-500 hover:text-gray-300'
+            }`}
+            aria-label="Отправить фото"
+          >
+            <ImageIcon className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={handleSendVoice}
+            className={`p-2 rounded-xl transition shrink-0 ${
+              mediaUnblocked || isRoomPlus
+                ? 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20'
+                : 'bg-[#1C1C1F] text-gray-500 hover:text-gray-300'
+            }`}
+            aria-label="Отправить голосовое"
+          >
+            <Volume2 className="w-4 h-4" />
+          </button>
+
+          <input
+            type="text"
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+            placeholder={isStrangerTyping ? 'Печатает ответ...' : 'Напишите сообщение...'}
+            className="flex-1 min-w-0 bg-[#1C1C1F] border border-white/[0.05] text-xs text-white rounded-xl py-2 px-3 placeholder-gray-500 focus:outline-none focus:border-purple-400 transition"
+          />
+
+          <button
+            type="submit"
+            disabled={!messageInput.trim()}
+            className="p-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:opacity-90 active:scale-95 transition flex items-center justify-center shadow-glow-purple disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            aria-label="Отправить"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
