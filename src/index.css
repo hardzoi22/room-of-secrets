@@ -183,3 +183,31 @@ input[type="range"]::-moz-range-thumb {
   border-radius: 50%;
   border: 2px solid #0A0A0B;
 }
+/* ==========================================
+   TELEGRAM MINI APP FIXES
+   ========================================== */
+
+/* Жестко фиксируем body, чтобы страница не улетала при открытии клавиатуры */
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  height: var(--tg-viewport-stable-height, 100vh); /* Используем стабильную высоту ТГ */
+  overflow: hidden !important; /* Отключаем баунс-эффект на iOS */
+  background-color: #050506;
+  position: fixed;
+  top: 0;
+  left: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Скрываем системные скроллбары, оставляя возможность скроллить контент */
+.custom-chat-scroll::-webkit-scrollbar {
+  display: none;
+}
+.custom-chat-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
