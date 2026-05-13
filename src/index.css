@@ -1,37 +1,32 @@
-2026-05-13T13:44:54.858Z	Initializing build environment...
-2026-05-13T13:44:57.609Z	Success: Finished initializing build environment
-2026-05-13T13:44:58.255Z	Cloning repository...
-2026-05-13T13:44:59.324Z	Restoring from dependencies cache
-2026-05-13T13:44:59.326Z	Restoring from build output cache
-2026-05-13T13:44:59.329Z	Detected the following tools from environment: npm@10.9.2, nodejs@22.16.0
-2026-05-13T13:44:59.459Z	Installing project dependencies: npm clean-install --progress=false
-2026-05-13T13:45:04.009Z	
-2026-05-13T13:45:04.010Z	added 89 packages, and audited 90 packages in 4s
-2026-05-13T13:45:04.010Z	
-2026-05-13T13:45:04.010Z	14 packages are looking for funding
-2026-05-13T13:45:04.010Z	  run `npm fund` for details
-2026-05-13T13:45:04.012Z	
-2026-05-13T13:45:04.012Z	found 0 vulnerabilities
-2026-05-13T13:45:04.331Z	Executing user build command: npm run build
-2026-05-13T13:45:04.648Z	
-2026-05-13T13:45:04.648Z	> room-of-secrets@0.1.0 build
-2026-05-13T13:45:04.648Z	> tsc && vite build
-2026-05-13T13:45:04.648Z	
-2026-05-13T13:45:08.214Z	vite v7.3.2 building client environment for production...
-2026-05-13T13:45:08.309Z	transforming...
-2026-05-13T13:45:08.612Z	✓ 8 modules transformed.
-2026-05-13T13:45:08.613Z	✗ Build failed in 338ms
-2026-05-13T13:45:08.613Z	error during build:
-2026-05-13T13:45:08.613Z	[vite:css] [postcss] /opt/buildhome/repo/src/index.css:2:1: Unknown word FILE
-2026-05-13T13:45:08.613Z	file: /opt/buildhome/repo/src/index.css:2:0
-2026-05-13T13:45:08.618Z	    at Input.error (/opt/buildhome/repo/node_modules/postcss/lib/input.js:135:16)
-2026-05-13T13:45:08.619Z	    at Parser.unknownWord (/opt/buildhome/repo/node_modules/postcss/lib/parser.js:595:22)
-2026-05-13T13:45:08.620Z	    at Parser.decl (/opt/buildhome/repo/node_modules/postcss/lib/parser.js:236:16)
-2026-05-13T13:45:08.622Z	    at Parser.other (/opt/buildhome/repo/node_modules/postcss/lib/parser.js:401:18)
-2026-05-13T13:45:08.624Z	    at Parser.parse (/opt/buildhome/repo/node_modules/postcss/lib/parser.js:472:16)
-2026-05-13T13:45:08.624Z	    at parse (/opt/buildhome/repo/node_modules/postcss/lib/parse.js:11:12)
-2026-05-13T13:45:08.625Z	    at new LazyResult (/opt/buildhome/repo/node_modules/postcss/lib/lazy-result.js:165:16)
-2026-05-13T13:45:08.628Z	    at Processor.process (/opt/buildhome/repo/node_modules/postcss/lib/processor.js:53:14)
-2026-05-13T13:45:08.628Z	    at runPostCSS (file:///opt/buildhome/repo/node_modules/vite/dist/node/chunks/config.js:30149:68)
-2026-05-13T13:45:08.628Z	    at async compilePostCSS (file:///opt/buildhome/repo/node_modules/vite/dist/node/chunks/config.js:30133:6)
-2026-05-13T13:45:08.660Z	Failed: error occurred while running build command
+@import "tailwindcss";
+
+/* ==========================================
+   TELEGRAM MINI APP FIXES
+   ========================================== */
+
+:root {
+  --tg-viewport-height: 100vh;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  height: var(--tg-viewport-stable-height, 100vh);
+  overflow: hidden !important;
+  background-color: #050506;
+  position: fixed;
+  top: 0;
+  left: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.custom-chat-scroll::-webkit-scrollbar {
+  display: none;
+}
+.custom-chat-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
