@@ -41,7 +41,54 @@ interface ChatMessage {
 }
 
 const STRANGER_PERSONAS: StrangerPersona[] = [
-  // ... (оставляем как было в самом начале)
+  {
+    id: 'ekaterina',
+    name: 'Екатерина 🎨',
+    age: 22,
+    city: 'Москва',
+    tag: '#4A7F',
+    avatarColor: 'from-pink-500 to-purple-600',
+    karma: 94,
+    avatarSeed: 'art_girl',
+    bio: 'Художница, обожаю урбанизм, пост-панк и кофе. Верю, что случайные встречи не случайны.',
+    firstMsg: 'Привет! Рада соединению. Очень необычное приложение. Чем занимаешься по жизни? 🎨',
+    replies: [
+      { keywords: ['привет', 'здравствуй', 'ку', 'прив', 'хай'], text: 'Привет-привет! Рада познакомиться! Расскажи, ты давно в этой тайной комнате?' },
+      { keywords: ['дела', 'как ты', 'настроение'], text: 'У меня отлично, рисую эскиз для нового проекта. А как у тебя дела на той стороне экрана?' },
+      { keywords: ['кто ты', 'как зовут', 'имя', 'аватар'], text: 'Я не могу сказать своё имя, пока мы не раскроем личности! 🤫 Это ведь Room of Secrets. Давай пообщаемся, и если оба согласимся — нажмем маску вверху!' },
+      { keywords: ['секрет', 'тайна', 'расскажи'], text: 'Мой главный секрет в том, что я иногда пою во весь голос в караоке, когда никого нет дома... Теперь твоя очередь делиться тайнами!' },
+      { keywords: ['карм', 'репутац'], text: 'У меня карма 94! Очень ценю вежливое и искреннее общение. А у тебя сколько?' }
+    ],
+    defaultReplies: [
+      'Интересная мысль! Я вообще человек творческий, люблю глубокие разговоры с незнакомцами. Расскажи что-нибудь необычное из своей недели.',
+      'Ого, здорово! Слушай, а веришь в то, что анонимность помогает людям быть более искренними?',
+      'Звучит круто! К слову, тут такая классная атмосфера, прямо как в закрытом ночном клубе.'
+    ]
+  },
+  {
+    id: 'aleksey',
+    name: 'Алексей 💻',
+    age: 27,
+    city: 'Минск',
+    tag: '#9E2C',
+    avatarColor: 'from-blue-500 to-cyan-600',
+    karma: 88,
+    avatarSeed: 'geek_guy',
+    bio: 'Разработчик, люблю путешествовать, горные лыжи и хороший крафт. Ценю адекватность.',
+    firstMsg: 'Привет аноним! Только зашел потестить комнату. Как дела, чем занят? ☕️',
+    replies: [
+      { keywords: ['привет', 'здравствуй', 'ку', 'прив', 'хай'], text: 'Привет! Рад адекватному собеседнику. Ищу с кем лампово поболтать под вечер.' },
+      { keywords: ['дела', 'как ты', 'настроение'], text: 'Кодю свой пет-проект под кружку чая. Решил сделать перерыв. Как твой день прошел?' },
+      { keywords: ['кто ты', 'как зовут', 'имя', 'аватар'], text: 'Я IT-инженер из Минска, но имя пока под секретом! Давай сначала пообщаемся, потом обменяемся контактами за звезды 🚀' },
+      { keywords: ['секрет', 'тайна', 'расскажи'], text: 'Секрет? Я однажды случайно удалил важный файл на прод-сервере и тихонько восстановил его за 5 минут до планерки. Никто так и не узнал! 👀' },
+      { keywords: ['карм', 'репутац'], text: 'Моя карма 88. Стараюсь общаться вежливо. Думаю, система кармы отлично отсеивает странных персонажей.' }
+    ],
+    defaultReplies: [
+      'Понимаю тебя. В современном интернете анонимность — это настоящая роскошь.',
+      'Ха-ха, забавно! Расскажи, а ты любишь свою работу или больше мечтаешь о путешествиях?',
+      'Ясно. Кстати, как тебе концепт этого чата? Мне нравится, что нет спама и фоток без согласия.'
+    ]
+  }
 ];
 
 export default function App() {
@@ -59,13 +106,10 @@ export default function App() {
   const [showBurnAnimation, setShowBurnAnimation] = useState(false);
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
-  const [showRatingScreen, setShowRatingScreen] = useState(false);
-  const [ratingReaction, setRatingReaction] = useState<string | null>(null);
-  const [ratingNote, setRatingNote] = useState('');
 
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  // Автоскролл
+  // Автоскролл чата
   useEffect(() => {
     if (chatBottomRef.current) {
       chatBottomRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -116,8 +160,8 @@ export default function App() {
     e.preventDefault();
     if (!messageInput.trim()) return;
 
-    const newMsg = {
-      id: Date.now(),
+    const newMsg: ChatMessage = {
+      id: Date.now().toString(),
       sender: 'user',
       text: messageInput,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -128,12 +172,13 @@ export default function App() {
 
     setTimeout(() => {
       const replies = ["Интересно...", "Согласен", "А у меня было так...", "Ого!", "Ха-ха, забавно!"];
-      setChatMessages(prev => [...prev, {
-        id: Date.now() + 1,
+      const strangerMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
         sender: 'stranger',
         text: replies[Math.floor(Math.random() * replies.length)],
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }]);
+      };
+      setChatMessages(prev => [...prev, strangerMsg]);
     }, 1100);
   };
 
