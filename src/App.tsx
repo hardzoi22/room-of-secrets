@@ -10,38 +10,18 @@ export default function App() {
   const [starsBalance, setStarsBalance] = useState(150);
   const [userKarma, setUserKarma] = useState(88);
   const [chatTimer, setChatTimer] = useState(900);
-  const [confessionTimer, setConfessionTimer] = useState(0);
   const [isConfessionMode, setIsConfessionMode] = useState(false);
+  const [confessionTimer, setConfessionTimer] = useState(0);
 
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
-  const [showAchievementsModal, setShowAchievementsModal] = useState(false);
-  const [newAchievement, setNewAchievement] = useState<any>(null);
 
-  const [achievements, setAchievements] = useState([
-    { id: 1, name: "Первый чат", icon: "💬", unlocked: false },
-    { id: 2, name: "Щедрая душа", icon: "🎁", unlocked: false },
-    { id: 3, name: "Ночной волк", icon: "🌙", unlocked: false },
-  ]);
-
-  // Сохранение прогресса
-  useEffect(() => {
-    const saved = localStorage.getItem('roomOfSecrets');
-    if (saved) {
-      const data = JSON.parse(saved);
-      setStarsBalance(data.stars || 150);
-      setUserKarma(data.karma || 88);
-      setAchievements(data.achievements || achievements);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('roomOfSecrets', JSON.stringify({
-      stars: starsBalance,
-      karma: userKarma,
-      achievements
-    }));
-  }, [starsBalance, userKarma, achievements]);
+  // Форматирование времени
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   // Таймер чата
   useEffect(() => {
@@ -133,29 +113,22 @@ export default function App() {
     setShowGiftModal(false);
     setUserKarma(p => Math.min(100, p + 2));
     
-    // Анимация подарка
     const giftEl = document.createElement('div');
     giftEl.textContent = giftName;
     giftEl.style.position = 'fixed';
-    giftEl.style.fontSize = '60px';
+    giftEl.style.fontSize = '80px';
     giftEl.style.left = '50%';
     giftEl.style.top = '40%';
-    giftEl.style.transition = 'all 2s';
+    giftEl.style.transition = 'all 2.5s ease-out';
     giftEl.style.zIndex = '1000';
     document.body.appendChild(giftEl);
 
     setTimeout(() => {
-      giftEl.style.transform = 'translateY(-300px) scale(0.5)';
+      giftEl.style.transform = 'translateY(-400px) scale(0.3)';
       giftEl.style.opacity = '0';
     }, 100);
 
-    setTimeout(() => document.body.removeChild(giftEl), 2500);
-  };
-
-  const unlockAchievement = (id: number) => {
-    setAchievements(prev => prev.map(a => a.id === id ? { ...a, unlocked: true } : a));
-    setNewAchievement(achievements.find(a => a.id === id));
-    setTimeout(() => setNewAchievement(null), 3000);
+    setTimeout(() => document.body.removeChild(giftEl), 3000);
   };
 
   return (
@@ -213,8 +186,16 @@ export default function App() {
                 </div>
               </div>
               <div className="flex gap-3">
-                <button onClick={() => setIsConfessionMode(!isConfessionMode)} className="text-purple-400 text-sm">🕯️ Исповедь</button>
-                <button onClick={handleBurnBridge} className="text-red-400 text-sm">Сжечь мост 🔥</button>
+                <button onClick={() => {
+                  setIsConfessionMode(true);
+                  setConfessionTimer(60);
+                }} className="text-purple-400 text-sm">🕯️ Исповедь</button>
+                <button onClick={() => {
+                  if (confirm("Сжечь мост?")) {
+                    setChatMessages([]);
+                    setActiveTab('lobby');
+                  }
+                }} className="text-red-400 text-sm">Сжечь мост 🔥</button>
               </div>
             </div>
 
@@ -283,7 +264,7 @@ export default function App() {
                 </button>
               ))}
             </div>
-            <button onClick={() => setShowRoomsModal(false)} className="mt-6 text-purple-400 w-full">Закрыть</button>
+            <button onClick={() => setShowRoomsModal(false)} className="mt-6 text-purple-400">Закрыть</button>
           </div>
         </div>
       )}
