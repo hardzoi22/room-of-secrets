@@ -1,4 +1,3 @@
-// src/types/index.ts
 export interface StrangerPersona {
   id: string;
   name: string;
@@ -85,21 +84,4 @@ export interface Achievement {
   progress: number;
   goal: number;
   secret: boolean;
-}
-
-export type ActiveTab = 'lobby' | 'chat' | 'reviews' | 'profile';
-export type IdentityState = 'none' | 'sent' | 'received' | 'accepted' | 'declined';
-export type SmokeType = 'match' | 'exit' | 'burn' | 'init';
-
-export interface Filters {
-  gender: 'all' | 'male' | 'female';
-  country: string;
-  ageRange: [number, number];
-}
-
-export interface Reactions {
-  fire: number;
-  angel: number;
-  brain: number;
-  toxic: number;
 }
