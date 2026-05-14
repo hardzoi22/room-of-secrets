@@ -10,8 +10,6 @@ import {
   X,
   Award,
   Send,
-  Copy,
-  Check,
   Compass,
   Sliders,
   LockKeyhole
@@ -64,30 +62,6 @@ const STRANGER_PERSONAS: StrangerPersona[] = [
       'Ого, здорово! Слушай, а веришь в то, что анонимность помогает людям быть более искренними?',
       'Звучит круто! К слову, тут такая классная атмосфера, прямо как в закрытом ночном клубе.'
     ]
-  },
-  {
-    id: 'aleksey',
-    name: 'Алексей 💻',
-    age: 27,
-    city: 'Минск',
-    tag: '#9E2C',
-    avatarColor: 'from-blue-500 to-cyan-600',
-    karma: 88,
-    avatarSeed: 'geek_guy',
-    bio: 'Разработчик, люблю путешествовать, горные лыжи и хороший крафт. Ценю адекватность.',
-    firstMsg: 'Привет аноним! Только зашел потестить комнату. Как дела, чем занят? ☕️',
-    replies: [
-      { keywords: ['привет', 'здравствуй', 'ку', 'прив', 'хай'], text: 'Привет! Рад адекватному собеседнику. Ищу с кем лампово поболтать под вечер.' },
-      { keywords: ['дела', 'как ты', 'настроение'], text: 'Кодю свой пет-проект под кружку чая. Решил сделать перерыв. Как твой день прошел?' },
-      { keywords: ['кто ты', 'как зовут', 'имя', 'аватар'], text: 'Я IT-инженер из Минска, но имя пока под секретом! Давай сначала пообщаемся, потом обменяемся контактами за звезды 🚀' },
-      { keywords: ['секрет', 'тайна', 'расскажи'], text: 'Секрет? Я однажды случайно удалил важный файл на прод-сервере и тихонько восстановил его за 5 минут до планерки. Никто так и не узнал! 👀' },
-      { keywords: ['карм', 'репутац'], text: 'Моя карма 88. Стараюсь общаться вежливо. Думаю, система кармы отлично отсеивает странных персонажей.' }
-    ],
-    defaultReplies: [
-      'Понимаю тебя. В современном интернете анонимность — это настоящая роскошь.',
-      'Ха-ха, забавно! Расскажи, а ты любишь свою работу или больше мечтаешь о путешествиях?',
-      'Ясно. Кстати, как тебе концепт этого чата? Мне нравится, что нет спама и фоток без согласия.'
-    ]
   }
 ];
 
@@ -99,9 +73,7 @@ export default function App() {
   const [searchProgress, setSearchProgress] = useState(0);
   const [selectedStranger, setSelectedStranger] = useState<StrangerPersona>(STRANGER_PERSONAS[0]);
   const [starsBalance, setStarsBalance] = useState(150);
-  const [isRoomPlus, setIsRoomPlus] = useState(false);
   const [userKarma, setUserKarma] = useState(88);
-  const [chatsCount, setChatsCount] = useState(42);
   const [chatTimer, setChatTimer] = useState(900);
   const [showBurnAnimation, setShowBurnAnimation] = useState(false);
   const [showRoomsModal, setShowRoomsModal] = useState(false);
@@ -109,7 +81,7 @@ export default function App() {
 
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  // Автоскролл чата
+  // Автоскролл
   useEffect(() => {
     if (chatBottomRef.current) {
       chatBottomRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -140,7 +112,7 @@ export default function App() {
         if (p >= 100) {
           clearInterval(interval);
           setIsSearching(false);
-          setSelectedStranger(STRANGER_PERSONAS[Math.floor(Math.random() * STRANGER_PERSONAS.length)]);
+          setSelectedStranger(STRANGER_PERSONAS[0]);
           setChatMessages([{
             id: 'sys1',
             sender: 'system',
