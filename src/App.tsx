@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useTelegram } from './hooks/useTelegram';
+import { useChatTimer } from './hooks/useChatTimer';
+import { useAchievements } from './hooks/useAchievements';
+
 import { SmokeOverlay } from './components/ui/SmokeOverlay';
 import { LobbyScreen } from './components/lobby/LobbyScreen';
 import { ChatScreen } from './components/chat/ChatScreen';
@@ -11,24 +15,20 @@ import { AchievementsModal } from './components/modals/AchievementsModal';
 import { ChallengeCompleteModal } from './components/modals/ChallengeCompleteModal';
 
 import { STRANGER_PERSONAS, TOPIC_ROOMS, AVAILABLE_GIFTS, ACHIEVEMENTS_LIST, generateDailyChallenge } from './data/mockData';
-import { StrangerPersona, ChatMessage, TopicRoom, Gift, Achievement } from './types';
 
 export default function App() {
+  const { tg, haptic } = useTelegram();
+  
   const [activeTab, setActiveTab] = useState<'lobby' | 'chat' | 'reviews' | 'profile'>('lobby');
   const [chatSessionActive, setChatSessionActive] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [selectedStranger, setSelectedStranger] = useState<StrangerPersona>(STRANGER_PERSONAS[0]);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [selectedStranger, setSelectedStranger] = useState(STRANGER_PERSONAS[0]);
 
   const [starsBalance, setStarsBalance] = useState(150);
   const [isRoomPlus, setIsRoomPlus] = useState(false);
   const [userKarma, setUserKarma] = useState(88);
   const [chatsCount, setChatsCount] = useState(42);
 
-  const [showSmokeScreen, setShowSmokeScreen] = useState(false);
-  const [smokeMessage, setSmokeMessage] = useState('');
-  const [smokeType, setSmokeType] = useState<'match' | 'exit' | 'burn' | 'init'>('init');
-
-  // Новые фичи
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [showAchievementsModal, setShowAchievementsModal] = useState(false);
@@ -36,60 +36,41 @@ export default function App() {
 
   const [dailyChallenge, setDailyChallenge] = useState(generateDailyChallenge(new Date()));
   const [challengeStreak, setChallengeStreak] = useState(0);
-  const [achievements, setAchievements] = useState<Achievement[]>(ACHIEVEMENTS_LIST);
-  const [sentGifts, setSentGifts] = useState<any[]>([]);
+  
+  const { achievements, checkAchievements, newUnlock, setNewUnlock } = useAchievements(ACHIEVEMENTS_LIST);
 
-  const [isSearching, setIsSearching] = useState(false);
+  const { time: chatTimer, start: startTimer, formatTime } = useChatTimer(900, () => {
+    // Таймер закончился
+    setChatSessionActive(false);
+    setActiveTab('lobby');
+  });
 
-  const triggerSmokeEffect = (type: any, message: string, callback: () => void) => {
-    setSmokeType(type);
-    setSmokeMessage(message);
-    setShowSmokeScreen(true);
-    setTimeout(() => {
-      callback();
-      setShowSmokeScreen(false);
-    }, 2000);
-  };
+  // Обновление достижений
+  useEffect(() => {
+    checkAchievements({
+      chatsCount,
+      userKarma,
+      totalReactions: { fire: 18, angel: 14, brain: 12 }
+    });
+  }, [chatsCount, userKarma]);
 
   const handleStartSearch = () => {
-    setIsSearching(true);
-    triggerSmokeEffect('match', 'Поиск собеседника...', () => {
-      setIsSearching(false);
-      setChatSessionActive(true);
-      setActiveTab('chat');
-      setChatMessages([{
-        id: 'welcome',
-        sender: 'system',
-        text: 'Соединение установлено. Чат анонимен.',
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }]);
-    });
-  };
-
-  const handleSendMessage = (text: string) => {
-    const newMsg: ChatMessage = {
-      id: Date.now().toString(),
-      sender: 'user',
-      text,
+    haptic.medium();
+    setChatSessionActive(true);
+    setActiveTab('chat');
+    startTimer(900);
+    
+    setChatMessages([{
+      id: 'sys1',
+      sender: 'system',
+      text: '⚠️ Чат полностью анонимен',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    setChatMessages(prev => [...prev, newMsg]);
-  };
-
-  const handleSendGift = (gift: Gift) => {
-    setSentGifts(prev => [...prev, { gift, timestamp: new Date(), sender: 'user' }]);
-    setShowGiftModal(false);
-    alert(`Подарок ${gift.emoji} ${gift.name} отправлен!`);
-  };
-
-  const handleJoinRoom = (room: TopicRoom) => {
-    setShowRoomsModal(false);
-    handleStartSearch();
+    }]);
   };
 
   return (
     <div className="fixed inset-0 bg-[#030305] text-white flex flex-col overflow-hidden">
-      <SmokeOverlay show={showSmokeScreen} type={smokeType} message={smokeMessage} />
+      <SmokeOverlay show={false} type="init" message="" />
 
       {/* Header */}
       <div className="px-5 py-4 border-b border-white/5 bg-[#0A0A0B]/90 backdrop-blur-xl z-40 flex justify-between items-center">
