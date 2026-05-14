@@ -1,14 +1,10 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App";
-import { initTelegramWebApp } from "./utils/telegram";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';   // или globals.css, если у тебя так называется
 
-// Инициализируем Telegram WebApp при старте
-initTelegramWebApp();
-
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <App />
-  </StrictMode>
+  </React.StrictMode>
 );
