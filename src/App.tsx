@@ -1,355 +1,162 @@
-// ============================================
-// 📦 НОВЫЕ TYPES & INTERFACES
-// ============================================
+import React, { useState, useEffect } from 'react';
+import { SmokeOverlay } from './components/ui/SmokeOverlay';
+import { LobbyScreen } from './components/lobby/LobbyScreen';
+import { ChatScreen } from './components/chat/ChatScreen';
+import { ReviewsScreen } from './components/reviews/ReviewsScreen';
+import { ProfileScreen } from './components/profile/ProfileScreen';
 
-// 1. ИСПОВЕДАЛЬНЯ
-interface ConfessionSession {
-  id: string;
-  mode: 'confess' | 'listen';
-  topic: 'любовь' | 'работа' | 'страхи' | 'мечты' | 'любое';
-  burnAfter: number; // секунды
-  isActive: boolean;
-  createdAt: Date;
-}
+import { STRANGER_PERSONAS } from './data/mockData';
+import { StrangerPersona, ChatMessage } from './types';
 
-// 2. ДНЕВНОЙ ЧЕЛЛЕНДЖ
-interface DailyChallenge {
-  id: string;
-  date: string; // YYYY-MM-DD
-  task: {
-    type: 'duration' | 'reactions' | 'reveals' | 'messages';
-    goal: number;
-    description: string;
-    emoji: string;
+export default function App() {
+  // Основные состояния
+  const [activeTab, setActiveTab] = useState<'lobby' | 'chat' | 'reviews' | 'profile'>('lobby');
+  const [chatSessionActive, setChatSessionActive] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [selectedStranger, setSelectedStranger] = useState<StrangerPersona>(STRANGER_PERSONAS[0]);
+
+  // Экономика и статистика
+  const [starsBalance, setStarsBalance] = useState(150);
+  const [isRoomPlus, setIsRoomPlus] = useState(false);
+  const [userKarma, setUserKarma] = useState(88);
+  const [chatsCount, setChatsCount] = useState(42);
+  const [totalReactions, setTotalReactions] = useState({ fire: 18, angel: 14, brain: 12, toxic: 2 });
+
+  // Состояния чата
+  const [chatTimer, setChatTimer] = useState(900);
+  const [identityRequestState, setIdentityRequestState] = useState<'none' | 'sent' | 'received' | 'accepted' | 'declined'>('none');
+  const [mediaUnblocked, setMediaUnblocked] = useState(false);
+
+  // UI состояния
+  const [showSmokeScreen, setShowSmokeScreen] = useState(false);
+  const [smokeMessage, setSmokeMessage] = useState('');
+  const [smokeType, setSmokeType] = useState<'match' | 'exit' | 'burn' | 'init'>('init');
+  const [showRatingScreen, setShowRatingScreen] = useState(false);
+  const [ratingReaction, setRatingReaction] = useState<string | null>(null);
+  const [ratingNote, setRatingNote] = useState('');
+
+  // Новые фичи (Часть 1)
+  const [showRoomsModal, setShowRoomsModal] = useState(false);
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showAchievementsModal, setShowAchievementsModal] = useState(false);
+  const [showChallengeModal, setShowChallengeModal] = useState(false);
+  const [dailyChallenge, setDailyChallenge] = useState<any>(null);
+  const [challengeStreak, setChallengeStreak] = useState(0);
+  const [achievements, setAchievements] = useState<any[]>([]);
+  const [sentGifts, setSentGifts] = useState<any[]>([]);
+
+  const handleStartSearch = () => {
+    // Логика поиска (будет расширена)
+    console.log("Поиск начат...");
   };
-  progress: number;
-  completed: boolean;
-  reward: {
-    stars: number;
-    karma: number;
+
+  const handleSendMessage = (text: string) => {
+    // Логика отправки сообщения
+    console.log("Сообщение отправлено:", text);
   };
-  streak: number;
-}
 
-// 3. КОМНАТЫ ПО ИНТЕРЕСАМ
-interface TopicRoom {
-  id: string;
-  name: string;
-  emoji: string;
-  description: string;
-  activeUsers: number;
-  vibe: 'chill' | 'deep' | 'fun' | 'chaotic';
-  topics: string[];
-  minKarma: number;
-  isPremium: boolean;
-}
+  const handleExitChat = () => {
+    setChatSessionActive(false);
+    setActiveTab('lobby');
+  };
 
-// 4. ПОДАРКИ
-interface Gift {
-  id: string;
-  name: string;
-  emoji: string;
-  animation: 'bounce' | 'float' | 'explode' | 'spin';
-  cost: number;
-  karmaBonus: number;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
-}
-
-interface SentGift {
-  gift: Gift;
-  timestamp: Date;
-  sender: 'user' | 'stranger';
-}
-
-// 5. ДОСТИЖЕНИЯ
-interface Achievement {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  rarity: 'common' | 'rare' | 'legendary' | 'mythic';
-  unlocked: boolean;
-  unlockedAt?: Date;
-  progress: number;
-  goal: number;
-  secret: boolean; // Скрыто до получения
-}
-
-// ============================================
-// 🎨 MOCK DATA ДЛЯ НОВЫХ ФИЧ
-// ============================================
-
-const TOPIC_ROOMS: TopicRoom[] = [
-  {
-    id: 'midnight-philosophers',
-    name: 'Полуночные философы',
-    emoji: '🌙',
-    description: 'Глубокие разговоры о смысле жизни',
-    activeUsers: 24,
-    vibe: 'deep',
-    topics: ['экзистенциализм', 'смысл жизни', 'философия'],
-    minKarma: 70,
-    isPremium: false
-  },
-  {
-    id: 'night-gamers',
-    name: 'Геймеры в 3 ночи',
-    emoji: '🎮',
-    description: 'Обсуждаем игры и прокачиваем скилл',
-    activeUsers: 47,
-    vibe: 'fun',
-    topics: ['gaming', 'киберспорт', 'стримы'],
-    minKarma: 50,
-    isPremium: false
-  },
-  {
-    id: 'startup-chaos',
-    name: 'Стартаперы',
-    emoji: '🚀',
-    description: 'Идеи, питчи, нетворкинг',
-    activeUsers: 18,
-    vibe: 'chaotic',
-    topics: ['стартапы', 'бизнес', 'инвестиции'],
-    minKarma: 80,
-    isPremium: true
-  },
-  {
-    id: 'book-club',
-    name: 'Книжный клуб',
-    emoji: '📚',
-    description: 'Обсуждаем прочитанное',
-    activeUsers: 31,
-    vibe: 'chill',
-    topics: ['книги', 'литература', 'авторы'],
-    minKarma: 60,
-    isPremium: false
-  },
-  {
-    id: 'random-chaos',
-    name: 'Случайный хаос',
-    emoji: '🎲',
-    description: 'Все темы, никаких правил',
-    activeUsers: 89,
-    vibe: 'chaotic',
-    topics: ['всё подряд'],
-    minKarma: 0,
-    isPremium: false
-  },
-  {
-    id: 'confession-room',
-    name: 'Исповедальня',
-    emoji: '🕯️',
-    description: 'Расскажи то, что не можешь никому сказать',
-    activeUsers: 12,
-    vibe: 'deep',
-    topics: ['секреты', 'исповедь', 'тайны'],
-    minKarma: 75,
-    isPremium: false
-  }
-];
-
-const AVAILABLE_GIFTS: Gift[] = [
-  {
-    id: 'rose',
-    name: 'Роза',
-    emoji: '🌹',
-    animation: 'float',
-    cost: 10,
-    karmaBonus: 2,
-    rarity: 'common'
-  },
-  {
-    id: 'coffee',
-    name: 'Кофе',
-    emoji: '☕',
-    animation: 'bounce',
-    cost: 15,
-    karmaBonus: 3,
-    rarity: 'common'
-  },
-  {
-    id: 'champagne',
-    name: 'Шампанское',
-    emoji: '🍾',
-    animation: 'explode',
-    cost: 25,
-    karmaBonus: 5,
-    rarity: 'rare'
-  },
-  {
-    id: 'fire',
-    name: 'Огонь',
-    emoji: '🔥',
-    animation: 'spin',
-    cost: 30,
-    karmaBonus: 6,
-    rarity: 'rare'
-  },
-  {
-    id: 'crown',
-    name: 'Корона',
-    emoji: '👑',
-    animation: 'float',
-    cost: 100,
-    karmaBonus: 20,
-    rarity: 'epic'
-  },
-  {
-    id: 'rocket',
-    name: 'Ракета',
-    emoji: '🚀',
-    animation: 'explode',
-    cost: 500,
-    karmaBonus: 100,
-    rarity: 'legendary'
-  },
-  {
-    id: 'diamond',
-    name: 'Бриллиант',
-    emoji: '💎',
-    animation: 'spin',
-    cost: 1000,
-    karmaBonus: 250,
-    rarity: 'legendary'
-  }
-];
-
-const ACHIEVEMENTS_LIST: Achievement[] = [
-  // COMMON
-  {
-    id: 'first-chat',
-    name: 'Первый контакт',
-    description: 'Завершите первый диалог',
-    icon: '💬',
-    rarity: 'common',
-    unlocked: false,
-    progress: 0,
-    goal: 1,
-    secret: false
-  },
-  {
-    id: 'friendly',
-    name: 'Дружелюбный',
-    description: 'Получите 10 положительных отзывов',
-    icon: '😊',
-    rarity: 'common',
-    unlocked: false,
-    progress: 0,
-    goal: 10,
-    secret: false
-  },
-  // RARE
-  {
-    id: 'night-owl',
-    name: 'Ночной волк',
-    description: 'Общайтесь с 3:00 до 5:00',
-    icon: '🌙',
-    rarity: 'rare',
-    unlocked: false,
-    progress: 0,
-    goal: 1,
-    secret: true
-  },
-  {
-    id: 'gift-giver',
-    name: 'Щедрая душа',
-    description: 'Отправьте 50 подарков',
-    icon: '🎁',
-    rarity: 'rare',
-    unlocked: false,
-    progress: 0,
-    goal: 50,
-    secret: false
-  },
-  // LEGENDARY
-  {
-    id: 'polyglot',
-    name: 'Полиглот',
-    description: 'Поговорите с людьми из 10 стран',
-    icon: '🗺️',
-    rarity: 'legendary',
-    unlocked: false,
-    progress: 0,
-    goal: 10,
-    secret: true
-  },
-  {
-    id: 'confessor',
-    name: 'Исповедник',
-    description: 'Услышьте 100 секретов в исповедальне',
-    icon: '🕯️',
-    rarity: 'legendary',
-    unlocked: false,
-    progress: 0,
-    goal: 100,
-    secret: true
-  },
-  // MYTHIC
-  {
-    id: 'karma-master',
-    name: 'Мастер Кармы',
-    description: 'Достигните 100 кармы',
-    icon: '🏆',
-    rarity: 'mythic',
-    unlocked: false,
-    progress: 0,
-    goal: 100,
-    secret: true
-  },
-  {
-    id: 'chat-legend',
-    name: 'Легенда чатов',
-    description: 'Проведите 1000 диалогов',
-    icon: '👑',
-    rarity: 'mythic',
-    unlocked: false,
-    progress: 0,
-    goal: 1000,
-    secret: true
-  }
-];
-
-const generateDailyChallenge = (date: Date): DailyChallenge => {
-  const challenges = [
-    {
-      type: 'duration' as const,
-      goal: 600,
-      description: 'Общайтесь 10 минут',
-      emoji: '⏱️'
-    },
-    {
-      type: 'reactions' as const,
-      goal: 5,
-      description: 'Получите 5 положительных реакций',
-      emoji: '🔥'
-    },
-    {
-      type: 'reveals' as const,
-      goal: 2,
-      description: 'Раскройте личность с 2 людьми',
-      emoji: '🎭'
-    },
-    {
-      type: 'messages' as const,
-      goal: 50,
-      description: 'Отправьте 50 сообщений',
-      emoji: '💬'
+  // Telegram WebApp инициализация
+  useEffect(() => {
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      tg.setHeaderColor('#0A0A0B');
+      tg.setBackgroundColor('#030305');
+      if (tg.isVersionAtLeast('6.1')) tg.disableVerticalSwipes();
     }
-  ];
+  }, []);
 
-  const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000);
-  const selectedChallenge = challenges[dayOfYear % challenges.length];
+  return (
+    <div className="fixed inset-0 w-full bg-[#030305] text-white flex flex-col overflow-hidden select-none">
+      
+      <SmokeOverlay 
+        show={showSmokeScreen} 
+        type={smokeType} 
+        message={smokeMessage} 
+      />
 
-  return {
-    id: `challenge-${date.toISOString().split('T')[0]}`,
-    date: date.toISOString().split('T')[0],
-    task: selectedChallenge,
-    progress: 0,
-    completed: false,
-    reward: {
-      stars: 50,
-      karma: 5
-    },
-    streak: 0
-  };
-};
+      {/* HEADER */}
+      <div className="px-5 py-4 flex items-center justify-between border-b border-white/5 bg-[#0A0A0B]/90 backdrop-blur-xl z-40">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent tracking-tight">
+          Room of Secrets
+        </h1>
+        <div className="flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-2xl border border-white/10">
+          <span className="text-amber-400">⭐</span>
+          <span className="font-mono font-bold text-lg text-amber-300">{starsBalance}</span>
+        </div>
+      </div>
+
+      {/* ОСНОВНОЙ КОНТЕНТ */}
+      <div className="flex-1 overflow-hidden relative">
+        {activeTab === 'lobby' && (
+          <LobbyScreen 
+            onStartSearch={handleStartSearch}
+            onOpenRooms={() => setShowRoomsModal(true)}
+            starsBalance={starsBalance}
+            dailyChallenge={dailyChallenge}
+            challengeStreak={challengeStreak}
+          />
+        )}
+
+        {activeTab === 'chat' && (
+          <ChatScreen 
+            messages={chatMessages}
+            selectedStranger={selectedStranger}
+            chatTimer={chatTimer}
+            identityRequestState={identityRequestState}
+            onSendMessage={handleSendMessage}
+            onExitChat={handleExitChat}
+            onRevealIdentity={() => {}}
+            onBurnBridge={() => {}}
+            onSendGift={() => setShowGiftModal(true)}
+          />
+        )}
+
+        {activeTab === 'reviews' && <ReviewsScreen />}
+        
+        {activeTab === 'profile' && (
+          <ProfileScreen 
+            userKarma={userKarma}
+            chatsCount={chatsCount}
+            achievements={achievements}
+            isRoomPlus={isRoomPlus}
+            onOpenAchievements={() => setShowAchievementsModal(true)}
+            onActivateRoomPlus={() => {}}
+          />
+        )}
+      </div>
+
+      {/* BOTTOM NAVIGATION */}
+      {activeTab !== 'chat' && (
+        <div className="bg-[#0A0A0B]/95 backdrop-blur-2xl border-t border-white/5 px-2 py-3 flex justify-around z-50">
+          {[
+            { id: 'lobby', icon: '🔮', label: 'Поиск' },
+            { id: 'chat', icon: '💬', label: 'Чат', active: chatSessionActive },
+            { id: 'reviews', icon: '🏆', label: 'Отзывы' },
+            { id: 'profile', icon: '👤', label: 'Профиль' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex flex-col items-center gap-1 p-3 rounded-2xl transition-all ${
+                activeTab === tab.id ? 'text-purple-400 scale-110' : 'text-gray-400'
+              }`}
+            >
+              <span className="text-2xl">{tab.icon}</span>
+              <span className="text-[10px] font-medium">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* МОДАЛЬНЫЕ ОКНА */}
+      {/* Здесь будут все модалки — будут добавлены в следующих файлах */}
+    </div>
+  );
+}
