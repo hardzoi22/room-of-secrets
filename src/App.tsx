@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'lobby' | 'chat' | 'reviews' | 'profile'>('lobby');
@@ -9,10 +9,36 @@ export default function App() {
   const [selectedStranger, setSelectedStranger] = useState<any>(null);
   const [starsBalance, setStarsBalance] = useState(150);
   const [userKarma, setUserKarma] = useState(88);
+  const [chatTimer, setChatTimer] = useState(900); // 15 минут
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showAchievementsModal, setShowAchievementsModal] = useState(false);
 
-  // Поиск с анимацией
+  // Таймер чата
+  useEffect(() => {
+    let interval: any = null;
+    if (activeTab === 'chat' && chatTimer > 0) {
+      interval = setInterval(() => {
+        setChatTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            alert("Время чата вышло!");
+            setActiveTab('lobby');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [activeTab, chatTimer]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const handleStartSearch = () => {
     setIsSearching(true);
     setSearchProgress(0);
@@ -22,17 +48,16 @@ export default function App() {
         const newProgress = prev + 12;
         if (newProgress >= 100) {
           clearInterval(interval);
-          setTimeout(() => {
-            setIsSearching(false);
-            setSelectedStranger({ name: "Незнакомец #47", tag: "#A3F9" });
-            setChatMessages([{
-              id: 'sys1',
-              sender: 'system',
-              text: '⚠️ Чат полностью анонимен. Наслаждайтесь разговором.',
-              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            }]);
-            setActiveTab('chat');
-          }, 400);
+          setIsSearching(false);
+          setSelectedStranger({ name: "Незнакомец #47", tag: "#A3F9" });
+          setChatMessages([{
+            id: 'sys1',
+            sender: 'system',
+            text: '⚠️ Чат полностью анонимен. Наслаждайтесь разговором.',
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }]);
+          setActiveTab('chat');
+          setChatTimer(900);
           return 100;
         }
         return newProgress;
@@ -40,7 +65,6 @@ export default function App() {
     }, 80);
   };
 
-  // Отправка сообщения
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!messageInput.trim()) return;
@@ -65,6 +89,14 @@ export default function App() {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }]);
     }, 1100);
+  };
+
+  const handleBurnBridge = () => {
+    if (confirm("Сжечь мост? Переписка будет удалена.")) {
+      setChatMessages([]);
+      setActiveTab('lobby');
+      setChatTimer(900);
+    }
   };
 
   const handleSendGift = (giftName: string) => {
@@ -104,13 +136,6 @@ export default function App() {
               <span className="text-5xl mb-3 relative z-10">🔮</span>
               <span className="text-sm font-bold tracking-widest relative z-10">ВОЙТИ В КОМНАТУ</span>
             </button>
-
-            <button 
-              onClick={() => setShowRoomsModal(true)}
-              className="mt-8 text-cyan-400 flex items-center gap-2 text-sm hover:text-cyan-300"
-            >
-              Комнаты по интересам →
-            </button>
           </div>
         )}
 
@@ -120,10 +145,7 @@ export default function App() {
             <div className="text-6xl mb-6 animate-pulse">🔍</div>
             <h3 className="text-xl font-bold mb-2">Поиск собеседника...</h3>
             <div className="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-purple-400 to-cyan-400 transition-all duration-200" 
-                style={{ width: `${searchProgress}%` }}
-              />
+              <div className="h-full bg-gradient-to-r from-purple-400 to-cyan-400 transition-all duration-200" style={{ width: `${searchProgress}%` }} />
             </div>
           </div>
         )}
@@ -131,12 +153,15 @@ export default function App() {
         {/* ЧАТ */}
         {activeTab === 'chat' && (
           <div className="flex flex-col h-full">
-            <div className="p-4 border-b border-white/5 bg-[#0A0A0B] flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xl">?</div>
-              <div>
-                <p className="font-medium">{selectedStranger?.name || "Незнакомец"}</p>
-                <p className="text-xs text-emerald-400">Онлайн</p>
+            <div className="p-4 border-b border-white/5 bg-[#0A0A0B] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xl">?</div>
+                <div>
+                  <p className="font-medium">{selectedStranger?.name || "Незнакомец"}</p>
+                  <p className="text-xs text-emerald-400">Онлайн • {formatTime(chatTimer)}</p>
+                </div>
               </div>
+              <button onClick={handleBurnBridge} className="text-red-400 text-sm">Сжечь мост 🔥</button>
             </div>
 
             <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-[#050507]">
@@ -203,8 +228,8 @@ export default function App() {
         <div className="absolute inset-0 bg-black/90 z-50 flex items-center justify-center p-6">
           <div className="bg-[#1A1A1F] w-full max-w-md rounded-3xl p-6">
             <h3 className="text-xl font-bold mb-4">Комнаты по интересам</h3>
-            <p className="text-gray-400 mb-6">Здесь будут тематические комнаты</p>
-            <button onClick={() => setShowRoomsModal(false)} className="text-purple-400">Закрыть</button>
+            <p className="text-gray-400">Функция в разработке</p>
+            <button onClick={() => setShowRoomsModal(false)} className="mt-6 text-purple-400">Закрыть</button>
           </div>
         </div>
       )}
