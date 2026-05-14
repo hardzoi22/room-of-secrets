@@ -100,25 +100,16 @@ export default function App() {
     giftEl.style.fontSize = '80px';
     giftEl.style.left = '50%';
     giftEl.style.top = '40%';
-    giftEl.style.transition = 'all 2.5s ease-out';
+    giftEl.style.transition = 'all 2.8s cubic-bezier(0.23, 1, 0.32, 1)';
     giftEl.style.zIndex = '1000';
     document.body.appendChild(giftEl);
 
     setTimeout(() => {
-      giftEl.style.transform = 'translateY(-400px) scale(0.3)';
+      giftEl.style.transform = 'translateY(-450px) scale(0.2)';
       giftEl.style.opacity = '0';
     }, 100);
 
-    setTimeout(() => document.body.removeChild(giftEl), 3000);
-  };
-
-  // Логика кнопки "Чат"
-  const handleChatTabClick = () => {
-    if (selectedStranger) {
-      setActiveTab('chat'); // Возвращаемся в активный чат
-    } else {
-      handleStartSearch(); // Начинаем поиск
-    }
+    setTimeout(() => document.body.removeChild(giftEl), 3200);
   };
 
   return (
@@ -144,11 +135,11 @@ export default function App() {
             
             <button 
               onClick={handleStartSearch}
-              className="relative w-40 h-40 rounded-3xl bg-gradient-to-br from-purple-600 via-violet-600 to-indigo-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/60 hover:scale-105 active:scale-95 transition-all group overflow-hidden"
+              className="relative w-44 h-44 rounded-3xl bg-gradient-to-br from-purple-600 via-violet-600 to-indigo-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/60 hover:scale-[1.05] active:scale-95 transition-all duration-300 group overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-cyan-400 opacity-30 group-hover:opacity-50 transition-opacity animate-pulse" />
-              <span className="text-5xl mb-3 relative z-10">🔮</span>
-              <span className="text-sm font-bold tracking-widest relative z-10">ВОЙТИ В КОМНАТУ</span>
+              <span className="text-6xl mb-3 relative z-10">🔮</span>
+              <span className="text-base font-bold tracking-widest relative z-10">ВОЙТИ В КОМНАТУ</span>
             </button>
           </div>
         )}
@@ -159,7 +150,7 @@ export default function App() {
             <div className="text-6xl mb-6 animate-pulse">🔍</div>
             <h3 className="text-xl font-bold mb-2">Поиск собеседника...</h3>
             <div className="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-purple-400 to-cyan-400 transition-all duration-200" style={{ width: `${searchProgress}%` }} />
+              <div className="h-full bg-gradient-to-r from-purple-400 to-cyan-400 transition-all duration-300" style={{ width: `${searchProgress}%` }} />
             </div>
           </div>
         )}
@@ -175,13 +166,13 @@ export default function App() {
                   <p className="text-xs text-emerald-400">Онлайн • {formatTime(chatTimer)}</p>
                 </div>
               </div>
-              <button onClick={handleBurnBridge} className="text-red-400 text-sm">Сжечь мост 🔥</button>
+              <button onClick={handleBurnBridge} className="text-red-400 text-sm hover:text-red-300 transition-colors">Сжечь мост 🔥</button>
             </div>
 
             <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-[#050507]">
               {chatMessages.map(msg => (
                 <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[75%] px-5 py-3 rounded-3xl text-[17px] ${msg.sender === 'user' ? 'bg-purple-600 text-white' : 'bg-zinc-800 text-gray-100'}`}>
+                  <div className={`max-w-[75%] px-5 py-3 rounded-3xl text-[17px] transition-all ${msg.sender === 'user' ? 'bg-purple-600 text-white' : 'bg-zinc-800 text-gray-100'}`}>
                     {msg.text}
                   </div>
                 </div>
@@ -195,32 +186,19 @@ export default function App() {
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder="Напишите сообщение..."
-                  className="flex-1 bg-zinc-900 border border-white/10 rounded-2xl px-5 py-3 focus:outline-none text-base"
+                  className="flex-1 bg-zinc-900 border border-white/10 rounded-2xl px-5 py-3 focus:outline-none text-base transition-all"
                 />
-                <button type="submit" className="bg-purple-600 px-8 rounded-2xl font-medium">→</button>
+                <button type="submit" className="bg-purple-600 px-8 rounded-2xl font-medium transition-all hover:bg-purple-500">→</button>
               </div>
-              <button type="button" onClick={() => setShowGiftModal(true)} className="text-pink-400 text-xs mt-3">🎁 Отправить подарок</button>
+              <button type="button" onClick={() => setShowGiftModal(true)} className="text-pink-400 text-xs mt-3 hover:text-pink-300 transition-colors">🎁 Отправить подарок</button>
             </form>
           </div>
         )}
 
-        {/* ОТЗЫВЫ */}
-        {activeTab === 'reviews' && (
-          <div className="flex flex-col items-center justify-center h-full text-center p-6">
-            <div className="text-6xl mb-6">🏆</div>
-            <h2 className="text-3xl font-bold mb-3">Доска Отзывов</h2>
-            <p className="text-gray-400">Здесь будут отзывы о собеседниках</p>
-            <div className="mt-8 text-5xl font-black text-purple-400">{userKarma}</div>
-            <p className="text-sm text-gray-400">Твоя карма</p>
-          </div>
-        )}
-
-        {/* ПРОФИЛЬ */}
-        {activeTab === 'profile' && (
-          <div className="flex flex-col items-center justify-center h-full text-center p-6">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-5xl font-bold mb-6">U</div>
-            <h2 className="text-3xl font-bold mb-1">@secret_agent</h2>
-            <p className="text-gray-400">Карма: {userKarma} • Диалогов: {chatMessages.length}</p>
+        {/* Заглушки */}
+        {(activeTab === 'reviews' || activeTab === 'profile') && (
+          <div className="flex items-center justify-center h-full text-gray-400">
+            <p className="text-xl">Раздел в разработке</p>
           </div>
         )}
       </div>
