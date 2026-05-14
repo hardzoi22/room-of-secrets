@@ -13,15 +13,13 @@ export default function App() {
   const [showBurnAnimation, setShowBurnAnimation] = useState(false);
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showAchievementsModal, setShowAchievementsModal] = useState(false);
 
-  // Таймер чата
-  useEffect(() => {
-    let interval: any = null;
-    if (activeTab === 'chat' && chatTimer > 0) {
-      interval = setInterval(() => setChatTimer(p => p - 1), 1000);
-    }
-    return () => clearInterval(interval);
-  }, [activeTab, chatTimer]);
+  const [achievements, setAchievements] = useState([
+    { id: 1, name: "Первый чат", icon: "💬", unlocked: false },
+    { id: 2, name: "Щедрая душа", icon: "🎁", unlocked: false },
+    { id: 3, name: "Ночной волк", icon: "🌙", unlocked: false },
+  ]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
