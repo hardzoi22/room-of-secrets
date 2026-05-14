@@ -18,6 +18,7 @@ import { STRANGER_PERSONAS } from './data/strangers';
 import { TOPIC_ROOMS } from './data/rooms';
 import { AVAILABLE_GIFTS } from './data/gifts';
 import { ACHIEVEMENTS_LIST } from './data/achievements';
+import { generateDailyChallenge } from './utils/challenge';
 
 // ============================================
 // 🎯 MAIN APP COMPONENT
@@ -52,7 +53,7 @@ export default function App() {
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   // --- State: Chat Mechanics ---
-  const [chatTimer, setChatTimer] = useState(CONFIG.CHAT_DURATION_DEFAULT);
+  const [chatTimer, setChatTimer] = useState<number>(CONFIG.CHAT_DURATION_DEFAULT);
   const [identityRequestState, setIdentityRequestState] = useState<IdentityState>('none');
   const [mediaUnblocked, setMediaUnblocked] = useState(false);
   const [mediaTimer, setMediaTimer] = useState<number | null>(null);
