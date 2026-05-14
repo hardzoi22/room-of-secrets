@@ -12,16 +12,10 @@ export default function App() {
   const [chatTimer, setChatTimer] = useState(900);
   const [isConfessionMode, setIsConfessionMode] = useState(false);
   const [confessionTimer, setConfessionTimer] = useState(0);
+  const [showBurnAnimation, setShowBurnAnimation] = useState(false);
 
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
-
-  // Форматирование времени
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   // Таймер чата
   useEffect(() => {
@@ -40,7 +34,7 @@ export default function App() {
         setConfessionTimer(p => {
           if (p <= 1) {
             setIsConfessionMode(false);
-            setChatMessages(prev => [...prev, { sender: 'system', text: '🔥 Исповедь сожжена.', time: '' }]);
+            setChatMessages(prev => [...prev, { sender: 'system', text: '🔥 Исповедь сожжена. Секрет унесен ветром.', time: '' }]);
             return 0;
           }
           return p - 1;
@@ -101,11 +95,13 @@ export default function App() {
   };
 
   const handleBurnBridge = () => {
-    if (confirm("Сжечь мост? Переписка будет удалена.")) {
+    setShowBurnAnimation(true);
+    setTimeout(() => {
       setChatMessages([]);
       setActiveTab('lobby');
       setChatTimer(900);
-    }
+      setShowBurnAnimation(false);
+    }, 1800);
   };
 
   const handleSendGift = (giftName: string) => {
@@ -189,13 +185,9 @@ export default function App() {
                 <button onClick={() => {
                   setIsConfessionMode(true);
                   setConfessionTimer(60);
+                  setChatMessages(prev => [...prev, { sender: 'system', text: '🕯️ Режим исповеди включён. Переписка сгорит через 60 секунд.', time: '' }]);
                 }} className="text-purple-400 text-sm">🕯️ Исповедь</button>
-                <button onClick={() => {
-                  if (confirm("Сжечь мост?")) {
-                    setChatMessages([]);
-                    setActiveTab('lobby');
-                  }
-                }} className="text-red-400 text-sm">Сжечь мост 🔥</button>
+                <button onClick={handleBurnBridge} className="text-red-400 text-sm">Сжечь мост 🔥</button>
               </div>
             </div>
 
@@ -251,6 +243,14 @@ export default function App() {
           </button>
         ))}
       </div>
+
+      {/* АНИМАЦИЯ СЖИГАНИЯ */}
+      {showBurnAnimation && (
+        <div className="absolute inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center">
+          <div className="text-6xl mb-6 animate-bounce">🔥</div>
+          <h3 className="text-2xl font-bold text-red-400">Сжигание переписки...</h3>
+        </div>
+      )}
 
       {/* МОДАЛКИ */}
       {showRoomsModal && (
