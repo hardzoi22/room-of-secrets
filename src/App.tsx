@@ -77,12 +77,14 @@ export default function App() {
 
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
+  // Автоскролл
   useEffect(() => {
     if (chatBottomRef.current) {
       chatBottomRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatMessages]);
 
+  // Таймер
   useEffect(() => {
     let interval: any = null;
     if (activeTab === 'chat' && chatTimer > 0) {
