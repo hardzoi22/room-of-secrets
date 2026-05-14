@@ -81,7 +81,7 @@ export default function App() {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#030305] text-white flex flex-col overflow-hidden">
+    <div className="fixed inset-0 w-full h-[100dvh] bg-[#030305] text-white flex flex-col overflow-hidden select-none">
       <SmokeOverlay show={false} type="init" message="" />
 
       {/* Header */}
