@@ -4,7 +4,7 @@ import { ChatMessage } from '../../types';
 interface ChatMessagesProps {
   messages: ChatMessage[];
   isStrangerTyping: boolean;
-  chatBottomRef: React.RefObject<HTMLDivElement>;
+  chatBottomRef: React.RefObject<HTMLDivElement | null>;   // ← Исправленный тип
 }
 
 export const ChatMessages: React.FC<ChatMessagesProps> = ({
