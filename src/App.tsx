@@ -1,28 +1,71 @@
 import React, { useState, useEffect, useRef } from 'react';
+import {
+  MessageSquare,
+  Sparkles,
+  Coins,
+  User,
+  ImageIcon,
+  Clock,
+  Flame,
+  X,
+  Award,
+  Send,
+  Copy,
+  Check,
+  Compass,
+  Sliders,
+  LockKeyhole
+} from 'lucide-react';
+
+interface StrangerPersona {
+  id: string;
+  name: string;
+  age: number;
+  city: string;
+  tag: string;
+  avatarColor: string;
+  karma: number;
+  avatarSeed: string;
+  bio: string;
+  firstMsg: string;
+  replies: { keywords: string[]; text: string }[];
+  defaultReplies: string[];
+}
+
+interface ChatMessage {
+  id: string;
+  sender: 'user' | 'stranger' | 'system';
+  text: string;
+  time: string;
+  type?: 'text' | 'media' | 'voice';
+}
+
+const STRANGER_PERSONAS: StrangerPersona[] = [
+  // ... (оставляем как было в самом начале)
+];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'lobby' | 'chat' | 'reviews' | 'profile'>('lobby');
-  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [messageInput, setMessageInput] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchProgress, setSearchProgress] = useState(0);
-  const [selectedStranger, setSelectedStranger] = useState<any>(null);
+  const [selectedStranger, setSelectedStranger] = useState<StrangerPersona>(STRANGER_PERSONAS[0]);
   const [starsBalance, setStarsBalance] = useState(150);
+  const [isRoomPlus, setIsRoomPlus] = useState(false);
   const [userKarma, setUserKarma] = useState(88);
+  const [chatsCount, setChatsCount] = useState(42);
   const [chatTimer, setChatTimer] = useState(900);
   const [showBurnAnimation, setShowBurnAnimation] = useState(false);
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showRatingScreen, setShowRatingScreen] = useState(false);
+  const [ratingReaction, setRatingReaction] = useState<string | null>(null);
+  const [ratingNote, setRatingNote] = useState('');
 
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Автоскролл чата
+  // Автоскролл
   useEffect(() => {
     if (chatBottomRef.current) {
       chatBottomRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -38,6 +81,12 @@ export default function App() {
     return () => clearInterval(interval);
   }, [activeTab, chatTimer]);
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const handleStartSearch = () => {
     setIsSearching(true);
     setSearchProgress(0);
@@ -47,7 +96,7 @@ export default function App() {
         if (p >= 100) {
           clearInterval(interval);
           setIsSearching(false);
-          setSelectedStranger({ name: "Незнакомец #47", tag: "#A3F9" });
+          setSelectedStranger(STRANGER_PERSONAS[Math.floor(Math.random() * STRANGER_PERSONAS.length)]);
           setChatMessages([{
             id: 'sys1',
             sender: 'system',
@@ -124,6 +173,14 @@ export default function App() {
   return (
     <div className="fixed inset-0 h-[100dvh] w-full bg-[#030305] text-white flex flex-col overflow-hidden select-none">
       
+      {/* SMOKE OVERLAY */}
+      {showBurnAnimation && (
+        <div className="absolute inset-0 bg-black/95 z-[999] flex flex-col items-center justify-center">
+          <div className="text-6xl mb-6 animate-bounce">🔥</div>
+          <h3 className="text-2xl font-bold text-red-400">Сжигание переписки...</h3>
+        </div>
+      )}
+
       {/* HEADER */}
       <div className="px-5 py-4 border-b border-white/5 bg-[#0A0A0B]/90 backdrop-blur-xl z-40 flex justify-between items-center">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
@@ -144,7 +201,7 @@ export default function App() {
             
             <button 
               onClick={handleStartSearch}
-              className="relative w-44 h-44 rounded-3xl bg-gradient-to-br from-purple-600 via-violet-600 to-indigo-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/60 hover:scale-105 active:scale-95 transition-all duration-300 group overflow-hidden"
+              className="relative w-40 h-40 rounded-3xl bg-gradient-to-br from-purple-600 via-violet-600 to-indigo-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/60 hover:scale-105 active:scale-95 transition-all group overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-cyan-400 opacity-30 group-hover:opacity-50 transition-opacity animate-pulse" />
               <span className="text-5xl mb-3 relative z-10">🔮</span>
