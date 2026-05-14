@@ -5,27 +5,39 @@ export default function App() {
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [messageInput, setMessageInput] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [searchProgress, setSearchProgress] = useState(0);
   const [selectedStranger, setSelectedStranger] = useState<any>(null);
   const [starsBalance, setStarsBalance] = useState(150);
   const [userKarma, setUserKarma] = useState(88);
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
 
-  // Поиск собеседника
+  // Поиск с анимацией
   const handleStartSearch = () => {
     setIsSearching(true);
-    
-    setTimeout(() => {
-      setIsSearching(false);
-      setSelectedStranger({ name: "Незнакомец #47", tag: "#A3F9" });
-      setChatMessages([{
-        id: 'sys1',
-        sender: 'system',
-        text: 'Соединение установлено. Чат анонимен.',
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }]);
-      setActiveTab('chat');
-    }, 1800);
+    setSearchProgress(0);
+
+    const interval = setInterval(() => {
+      setSearchProgress(prev => {
+        const newProgress = prev + 12;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setIsSearching(false);
+            setSelectedStranger({ name: "Незнакомец #47", tag: "#A3F9" });
+            setChatMessages([{
+              id: 'sys1',
+              sender: 'system',
+              text: '⚠️ Чат полностью анонимен. Наслаждайтесь разговором.',
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }]);
+            setActiveTab('chat');
+          }, 400);
+          return 100;
+        }
+        return newProgress;
+      });
+    }, 80);
   };
 
   // Отправка сообщения
@@ -43,31 +55,23 @@ export default function App() {
     setChatMessages(prev => [...prev, newMsg]);
     setMessageInput('');
 
-    // Имитация ответа от незнакомца
+    // Имитация ответа
     setTimeout(() => {
-      const replies = [
-        "Интересно... Расскажи подробнее",
-        "Согласен с тобой",
-        "А у меня было похожее...",
-        "Ого, не ожидал такого",
-        "Ха-ха, забавно!"
-      ];
-      const randomReply = replies[Math.floor(Math.random() * replies.length)];
-
+      const replies = ["Интересно...", "Согласен", "А у меня было так...", "Ого!", "Ха-ха, забавно!"];
       setChatMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'stranger',
-        text: randomReply,
+        text: replies[Math.floor(Math.random() * replies.length)],
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }]);
-    }, 1200);
+    }, 1100);
   };
 
   const handleSendGift = (giftName: string) => {
     setStarsBalance(prev => Math.max(0, prev - 20));
     setShowGiftModal(false);
-    alert(`Подарок "${giftName}" отправлен! +2 кармы`);
     setUserKarma(prev => Math.min(100, prev + 2));
+    alert(`Подарок "${giftName}" отправлен!`);
   };
 
   return (
@@ -110,6 +114,20 @@ export default function App() {
           </div>
         )}
 
+        {/* АНИМАЦИЯ ПОИСКА */}
+        {isSearching && (
+          <div className="absolute inset-0 bg-black/90 z-50 flex flex-col items-center justify-center">
+            <div className="text-6xl mb-6 animate-pulse">🔍</div>
+            <h3 className="text-xl font-bold mb-2">Поиск собеседника...</h3>
+            <div className="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-purple-400 to-cyan-400 transition-all duration-200" 
+                style={{ width: `${searchProgress}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* ЧАТ */}
         {activeTab === 'chat' && (
           <div className="flex flex-col h-full">
@@ -117,7 +135,7 @@ export default function App() {
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xl">?</div>
               <div>
                 <p className="font-medium">{selectedStranger?.name || "Незнакомец"}</p>
-                <p className="text-xs text-gray-400">Онлайн</p>
+                <p className="text-xs text-emerald-400">Онлайн</p>
               </div>
             </div>
 
@@ -153,7 +171,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Остальные экраны */}
+        {/* Заглушки */}
         {(activeTab === 'reviews' || activeTab === 'profile') && (
           <div className="flex items-center justify-center h-full text-gray-400">
             <p className="text-xl">Раздел в разработке</p>
@@ -185,8 +203,8 @@ export default function App() {
         <div className="absolute inset-0 bg-black/90 z-50 flex items-center justify-center p-6">
           <div className="bg-[#1A1A1F] w-full max-w-md rounded-3xl p-6">
             <h3 className="text-xl font-bold mb-4">Комнаты по интересам</h3>
-            <p className="text-gray-400">Здесь будут комнаты...</p>
-            <button onClick={() => setShowRoomsModal(false)} className="mt-6 text-purple-400">Закрыть</button>
+            <p className="text-gray-400 mb-6">Здесь будут тематические комнаты</p>
+            <button onClick={() => setShowRoomsModal(false)} className="text-purple-400">Закрыть</button>
           </div>
         </div>
       )}
@@ -197,7 +215,7 @@ export default function App() {
             <h3 className="text-xl font-bold mb-4">Отправить подарок</h3>
             <div className="grid grid-cols-3 gap-4">
               {['🌹', '☕', '🍾', '🔥', '👑'].map((emoji, i) => (
-                <button key={i} onClick={() => handleSendGift(emoji)} className="text-4xl p-4 hover:bg-white/10 rounded-2xl transition-all">
+                <button key={i} onClick={() => handleSendGift(emoji)} className="text-5xl p-6 hover:bg-white/10 rounded-2xl transition-all">
                   {emoji}
                 </button>
               ))}
