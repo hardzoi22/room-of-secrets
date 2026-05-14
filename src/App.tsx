@@ -15,16 +15,20 @@ export default function App() {
 
       {/* MAIN CONTENT */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="text-center">
+        <div className="text-center w-full max-w-xs">
           <div className="text-5xl mb-6">🌌</div>
           <h2 className="text-4xl font-bold mb-3">Тайная Комната</h2>
           <p className="text-gray-400 text-lg mb-10">Говори. Слушай. Исчезай.</p>
           
-          {/* Уменьшенная кнопка */}
-          <button className="w-44 h-44 rounded-3xl bg-gradient-to-br from-purple-600 to-violet-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/50 hover:scale-105 active:scale-95 transition-all">
-            <span className="text-5xl mb-3">🔮</span>
-            <span className="text-base font-bold tracking-widest">ВОЙТИ В КОМНАТУ</span>
-          </button>
+          {/* Уменьшенная и центрированная кнопка */}
+          <div className="flex justify-center">
+            <button className="w-40 h-40 rounded-3xl bg-gradient-to-br from-purple-600 to-violet-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/50 hover:scale-105 active:scale-95 transition-all">
+              <span className="text-5xl mb-3">🔮</span>
+              <span className="text-sm font-bold tracking-widest text-center leading-tight">
+                ВОЙТИ В<br />КОМНАТУ
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
