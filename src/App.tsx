@@ -20,11 +20,11 @@ export default function App() {
           <h2 className="text-4xl font-bold mb-3">Тайная Комната</h2>
           <p className="text-gray-400 text-lg mb-10">Говори. Слушай. Исчезай.</p>
           
-          {/* Уменьшенная и центрированная кнопка */}
+          {/* Ещё меньше в 2 раза */}
           <div className="flex justify-center">
-            <button className="w-40 h-40 rounded-3xl bg-gradient-to-br from-purple-600 to-violet-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/50 hover:scale-105 active:scale-95 transition-all">
-              <span className="text-5xl mb-3">🔮</span>
-              <span className="text-sm font-bold tracking-widest text-center leading-tight">
+            <button className="w-32 h-32 rounded-3xl bg-gradient-to-br from-purple-600 to-violet-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/50 hover:scale-105 active:scale-95 transition-all">
+              <span className="text-4xl mb-2">🔮</span>
+              <span className="text-xs font-bold tracking-widest text-center leading-tight">
                 ВОЙТИ В<br />КОМНАТУ
               </span>
             </button>
