@@ -87,14 +87,13 @@ export interface Achievement {
   secret: boolean;
 }
 
-// 🎯 Типы для стейта приложения
 export type ActiveTab = 'lobby' | 'chat' | 'reviews' | 'profile';
 export type IdentityState = 'none' | 'sent' | 'received' | 'accepted' | 'declined';
 export type SmokeType = 'match' | 'exit' | 'burn' | 'init';
 
 export interface Filters {
   gender: 'all' | 'male' | 'female';
-  country: 'all' | string;
+  country: string;
   ageRange: [number, number];
 }
 
