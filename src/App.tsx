@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTelegram } from './hooks/useTelegram';
 import { useChatTimer } from './hooks/useChatTimer';
-import { useAchievements } from './hooks/useAchievements';
 
 import { SmokeOverlay } from './components/ui/SmokeOverlay';
 import { LobbyScreen } from './components/lobby/LobbyScreen';
@@ -15,14 +14,15 @@ import { AchievementsModal } from './components/modals/AchievementsModal';
 import { ChallengeCompleteModal } from './components/modals/ChallengeCompleteModal';
 
 import { STRANGER_PERSONAS, TOPIC_ROOMS, AVAILABLE_GIFTS, ACHIEVEMENTS_LIST, generateDailyChallenge } from './data/mockData';
+import { StrangerPersona, ChatMessage, TopicRoom, Gift } from './types';
 
 export default function App() {
-  const { tg, haptic } = useTelegram();
-  
+  const { haptic } = useTelegram();
+
   const [activeTab, setActiveTab] = useState<'lobby' | 'chat' | 'reviews' | 'profile'>('lobby');
   const [chatSessionActive, setChatSessionActive] = useState(false);
-  const [chatMessages, setChatMessages] = useState<any[]>([]);
-  const [selectedStranger, setSelectedStranger] = useState(STRANGER_PERSONAS[0]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [selectedStranger, setSelectedStranger] = useState<StrangerPersona>(STRANGER_PERSONAS[0]);
 
   const [starsBalance, setStarsBalance] = useState(150);
   const [isRoomPlus, setIsRoomPlus] = useState(false);
@@ -36,36 +36,48 @@ export default function App() {
 
   const [dailyChallenge, setDailyChallenge] = useState(generateDailyChallenge(new Date()));
   const [challengeStreak, setChallengeStreak] = useState(0);
-  
-  const { achievements, checkAchievements, newUnlock, setNewUnlock } = useAchievements(ACHIEVEMENTS_LIST);
+  const [achievements, setAchievements] = useState(ACHIEVEMENTS_LIST);
+  const [sentGifts, setSentGifts] = useState<any[]>([]);
 
   const { time: chatTimer, start: startTimer, formatTime } = useChatTimer(900, () => {
-    // Таймер закончился
     setChatSessionActive(false);
     setActiveTab('lobby');
   });
 
-  // Обновление достижений
-  useEffect(() => {
-    checkAchievements({
-      chatsCount,
-      userKarma,
-      totalReactions: { fire: 18, angel: 14, brain: 12 }
-    });
-  }, [chatsCount, userKarma]);
-
+  // Обработчики
   const handleStartSearch = () => {
     haptic.medium();
     setChatSessionActive(true);
     setActiveTab('chat');
-    startTimer(900);
+    startTimer();
     
     setChatMessages([{
-      id: 'sys1',
+      id: 'sys-welcome',
       sender: 'system',
-      text: '⚠️ Чат полностью анонимен',
+      text: '⚠️ Чат полностью анонимен. Наслаждайтесь разговором.',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }]);
+  };
+
+  const handleSendMessage = (text: string) => {
+    const newMsg: ChatMessage = {
+      id: Date.now().toString(),
+      sender: 'user',
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setChatMessages(prev => [...prev, newMsg]);
+  };
+
+  const handleSendGift = (gift: Gift) => {
+    setSentGifts(prev => [...prev, { gift, timestamp: new Date() }]);
+    setShowGiftModal(false);
+    haptic.success();
+  };
+
+  const handleJoinRoom = (room: TopicRoom) => {
+    setShowRoomsModal(false);
+    handleStartSearch();
   };
 
   return (
@@ -83,7 +95,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Screens */}
+      {/* Main Content */}
       <div className="flex-1 overflow-hidden relative">
         {activeTab === 'lobby' && (
           <LobbyScreen 
@@ -99,7 +111,7 @@ export default function App() {
           <ChatScreen 
             messages={chatMessages}
             selectedStranger={selectedStranger}
-            chatTimer={900}
+            chatTimer={chatTimer}
             identityRequestState="none"
             onSendMessage={handleSendMessage}
             onExitChat={() => setActiveTab('lobby')}
@@ -110,7 +122,6 @@ export default function App() {
         )}
 
         {activeTab === 'reviews' && <ReviewsScreen />}
-        
         {activeTab === 'profile' && (
           <ProfileScreen 
             userKarma={userKarma}
@@ -125,7 +136,7 @@ export default function App() {
 
       {/* Bottom Navigation */}
       {activeTab !== 'chat' && (
-        <div className="bg-[#0A0A0B]/95 backdrop-blur-2xl border-t border-white/5 p-3 flex justify-around">
+        <div className="bg-[#0A0A0B]/95 backdrop-blur-2xl border-t border-white/5 p-3 flex justify-around z-50">
           {[
             { id: 'lobby', label: 'Поиск', icon: '🔮' },
             { id: 'chat', label: 'Чат', icon: '💬' },
@@ -145,38 +156,10 @@ export default function App() {
       )}
 
       {/* Modals */}
-      {showRoomsModal && (
-        <RoomsModal 
-          rooms={TOPIC_ROOMS}
-          userKarma={userKarma}
-          isRoomPlus={isRoomPlus}
-          onClose={() => setShowRoomsModal(false)}
-          onJoinRoom={handleJoinRoom}
-        />
-      )}
-
-      {showGiftModal && (
-        <GiftModal 
-          gifts={AVAILABLE_GIFTS}
-          onClose={() => setShowGiftModal(false)}
-          onSendGift={handleSendGift}
-        />
-      )}
-
-      {showAchievementsModal && (
-        <AchievementsModal 
-          achievements={achievements}
-          onClose={() => setShowAchievementsModal(false)}
-        />
-      )}
-
-      {showChallengeModal && (
-        <ChallengeCompleteModal 
-          challenge={dailyChallenge}
-          streak={challengeStreak}
-          onClose={() => setShowChallengeModal(false)}
-        />
-      )}
+      {showRoomsModal && <RoomsModal rooms={TOPIC_ROOMS} userKarma={userKarma} isRoomPlus={isRoomPlus} onClose={() => setShowRoomsModal(false)} onJoinRoom={handleJoinRoom} />}
+      {showGiftModal && <GiftModal gifts={AVAILABLE_GIFTS} onClose={() => setShowGiftModal(false)} onSendGift={handleSendGift} />}
+      {showAchievementsModal && <AchievementsModal achievements={achievements} onClose={() => setShowAchievementsModal(false)} />}
+      {showChallengeModal && <ChallengeCompleteModal challenge={dailyChallenge} streak={challengeStreak} onClose={() => setShowChallengeModal(false)} />}
     </div>
   );
 }
