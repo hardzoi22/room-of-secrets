@@ -13,19 +13,21 @@ export default function App() {
   const [showBurnAnimation, setShowBurnAnimation] = useState(false);
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
-  const [showAchievementsModal, setShowAchievementsModal] = useState(false);
-
-  const [achievements, setAchievements] = useState([
-    { id: 1, name: "Первый чат", icon: "💬", unlocked: false },
-    { id: 2, name: "Щедрая душа", icon: "🎁", unlocked: false },
-    { id: 3, name: "Ночной волк", icon: "🌙", unlocked: false },
-  ]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  // Таймер чата
+  useEffect(() => {
+    let interval: any = null;
+    if (activeTab === 'chat' && chatTimer > 0) {
+      interval = setInterval(() => setChatTimer(p => p - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [activeTab, chatTimer]);
 
   const handleStartSearch = () => {
     setIsSearching(true);
@@ -108,6 +110,15 @@ export default function App() {
     }, 100);
 
     setTimeout(() => document.body.removeChild(giftEl), 3000);
+  };
+
+  // Логика кнопки "Чат"
+  const handleChatTabClick = () => {
+    if (selectedStranger) {
+      setActiveTab('chat'); // Возвращаемся в активный чат
+    } else {
+      handleStartSearch(); // Начинаем поиск
+    }
   };
 
   return (
@@ -193,10 +204,23 @@ export default function App() {
           </div>
         )}
 
-        {/* Заглушки */}
-        {(activeTab === 'reviews' || activeTab === 'profile') && (
-          <div className="flex items-center justify-center h-full text-gray-400">
-            <p className="text-xl">Раздел в разработке</p>
+        {/* ОТЗЫВЫ */}
+        {activeTab === 'reviews' && (
+          <div className="flex flex-col items-center justify-center h-full text-center p-6">
+            <div className="text-6xl mb-6">🏆</div>
+            <h2 className="text-3xl font-bold mb-3">Доска Отзывов</h2>
+            <p className="text-gray-400">Здесь будут отзывы о собеседниках</p>
+            <div className="mt-8 text-5xl font-black text-purple-400">{userKarma}</div>
+            <p className="text-sm text-gray-400">Твоя карма</p>
+          </div>
+        )}
+
+        {/* ПРОФИЛЬ */}
+        {activeTab === 'profile' && (
+          <div className="flex flex-col items-center justify-center h-full text-center p-6">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-5xl font-bold mb-6">U</div>
+            <h2 className="text-3xl font-bold mb-1">@secret_agent</h2>
+            <p className="text-gray-400">Карма: {userKarma} • Диалогов: {chatMessages.length}</p>
           </div>
         )}
       </div>
@@ -211,7 +235,14 @@ export default function App() {
         ].map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => {
+              if (tab.id === 'chat') {
+                if (selectedStranger) setActiveTab('chat');
+                else handleStartSearch();
+              } else {
+                setActiveTab(tab.id as any);
+              }
+            }}
             className={`flex flex-col items-center gap-1 p-3 rounded-2xl transition-all ${activeTab === tab.id ? 'text-purple-400' : 'text-gray-400'}`}
           >
             <span className="text-2xl">{tab.icon}</span>
