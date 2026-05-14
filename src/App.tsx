@@ -1,4 +1,4 @@
-mport React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   MessageSquare, Sparkles, Shield, Coins, Lock, User, Volume2, Image as ImageIcon,
   Clock, Flame, Share2, LogOut, Compass, Sliders, Check, X, Award, RefreshCw, Send,
