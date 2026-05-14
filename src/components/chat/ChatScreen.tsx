@@ -28,7 +28,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({
   onSendGift
 }) => {
   const [messageInput, setMessageInput] = React.useState('');
-  const chatBottomRef = React.useRef<HTMLDivElement>(null);
+  const chatBottomRef = React.useRef<HTMLDivElement>(null);   // ← исправлено
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,8 +39,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({
   };
 
   const handleSendPhoto = () => {
-    // Заглушка для отправки фото
-    alert('Функция отправки фото будет добавлена позже');
+    alert('Отправка фото будет добавлена позже');
   };
 
   return (
