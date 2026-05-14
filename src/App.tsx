@@ -10,19 +10,9 @@ export default function App() {
   const [starsBalance, setStarsBalance] = useState(150);
   const [userKarma, setUserKarma] = useState(88);
   const [chatTimer, setChatTimer] = useState(900);
-  const [isConfessionMode, setIsConfessionMode] = useState(false);
-  const [confessionTimer, setConfessionTimer] = useState(0);
   const [showBurnAnimation, setShowBurnAnimation] = useState(false);
-
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
-
-  // Форматирование времени
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   // Таймер чата
   useEffect(() => {
@@ -33,23 +23,11 @@ export default function App() {
     return () => clearInterval(interval);
   }, [activeTab, chatTimer]);
 
-  // Таймер исповедальни
-  useEffect(() => {
-    let interval: any = null;
-    if (isConfessionMode && confessionTimer > 0) {
-      interval = setInterval(() => {
-        setConfessionTimer(p => {
-          if (p <= 1) {
-            setIsConfessionMode(false);
-            setChatMessages(prev => [...prev, { sender: 'system', text: '🔥 Исповедь сожжена. Секрет унесен ветром.', time: '' }]);
-            return 0;
-          }
-          return p - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isConfessionMode, confessionTimer]);
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleStartSearch = () => {
     setIsSearching(true);
@@ -188,14 +166,7 @@ export default function App() {
                   <p className="text-xs text-emerald-400">Онлайн • {formatTime(chatTimer)}</p>
                 </div>
               </div>
-              <div className="flex gap-3">
-                <button onClick={() => {
-                  setIsConfessionMode(true);
-                  setConfessionTimer(60);
-                  setChatMessages(prev => [...prev, { sender: 'system', text: '🕯️ Режим исповеди включён. Переписка сгорит через 60 секунд.', time: '' }]);
-                }} className="text-purple-400 text-sm">🕯️ Исповедь</button>
-                <button onClick={handleBurnBridge} className="text-red-400 text-sm">Сжечь мост 🔥</button>
-              </div>
+              <button onClick={handleBurnBridge} className="text-red-400 text-sm">Сжечь мост 🔥</button>
             </div>
 
             <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-[#050507]">
