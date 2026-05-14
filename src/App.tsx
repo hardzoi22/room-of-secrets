@@ -15,21 +15,45 @@ export default function App() {
 
       {/* MAIN CONTENT */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="text-center w-full max-w-xs">
-          <div className="text-5xl mb-6">🌌</div>
-          <h2 className="text-4xl font-bold mb-3">Тайная Комната</h2>
-          <p className="text-gray-400 text-lg mb-10">Говори. Слушай. Исчезай.</p>
-          
-          {/* Ещё меньше в 2 раза */}
-          <div className="flex justify-center">
-            <button className="w-32 h-32 rounded-3xl bg-gradient-to-br from-purple-600 to-violet-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/50 hover:scale-105 active:scale-95 transition-all">
-              <span className="text-4xl mb-2">🔮</span>
-              <span className="text-xs font-bold tracking-widest text-center leading-tight">
+        {activeTab === 'lobby' && (
+          <div className="text-center">
+            <div className="text-6xl mb-6">🌌</div>
+            <h2 className="text-4xl font-bold mb-3">Тайная Комната</h2>
+            <p className="text-gray-400 text-lg mb-12">Говори. Слушай. Исчезай.</p>
+            
+            {/* Пульсирующая 2-цветная кнопка */}
+            <button 
+              onClick={() => alert('Поиск собеседника... (функция в разработке)')}
+              className="relative w-40 h-40 rounded-3xl bg-gradient-to-br from-purple-600 via-violet-600 to-indigo-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/60 hover:scale-105 active:scale-95 transition-all group overflow-hidden"
+            >
+              {/* Пульсирующий размытый фон */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-cyan-400 opacity-30 group-hover:opacity-50 transition-opacity animate-pulse" />
+              
+              <span className="text-5xl mb-3 relative z-10">🔮</span>
+              <span className="text-sm font-bold tracking-widest relative z-10 text-center leading-tight">
                 ВОЙТИ В<br />КОМНАТУ
               </span>
             </button>
           </div>
-        </div>
+        )}
+
+        {activeTab === 'chat' && (
+          <div className="text-center text-gray-400">
+            <p className="text-2xl">Чат в разработке</p>
+          </div>
+        )}
+
+        {activeTab === 'reviews' && (
+          <div className="text-center text-gray-400">
+            <p className="text-2xl">Отзывы в разработке</p>
+          </div>
+        )}
+
+        {activeTab === 'profile' && (
+          <div className="text-center text-gray-400">
+            <p className="text-2xl">Профиль в разработке</p>
+          </div>
+        )}
       </div>
 
       {/* BOTTOM NAVIGATION */}
