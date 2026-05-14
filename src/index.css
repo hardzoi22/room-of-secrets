@@ -2,42 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Запрет зума и улучшение масштабирования */
-html, body {
+/* Основные стили для Telegram Mini App */
+html, body, #root {
+  height: 100dvh;
+  width: 100%;
   margin: 0;
   padding: 0;
-  height: 100%;
-  width: 100%;
   overflow: hidden;
-  touch-action: manipulation;           /* Улучшает отзывчивость */
-  -webkit-touch-callout: none;          /* Запрещает всплывающее меню */
-  -webkit-user-select: none;            /* Запрещает выделение текста */
+  background: #030305;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
   user-select: none;
 }
 
-/* Используем dynamic viewport height (лучше чем 100vh) */
-#root {
-  height: 100dvh;   /* dynamic viewport height */
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Кастомный скролл для чата */
-.custom-chat-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(168, 85, 247, 0.3) transparent;
-}
-
+/* Кастомный скролл */
 .custom-chat-scroll::-webkit-scrollbar {
   width: 4px;
 }
-
 .custom-chat-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(168, 85, 247, 0.4);
+  background: rgba(168, 85, 247, 0.4);
   border-radius: 20px;
 }
 
-/* Улучшение для клавиатуры */
+/* Чтобы iOS не зумил при фокусе на input */
 input, textarea {
-  font-size: 16px !important;   /* Важно! Чтобы iOS не зумил при фокусе */
+  font-size: 16px !important;
 }
