@@ -9,58 +9,88 @@ export default function App() {
   const [selectedStranger, setSelectedStranger] = useState<any>(null);
   const [starsBalance, setStarsBalance] = useState(150);
   const [userKarma, setUserKarma] = useState(88);
-  const [chatTimer, setChatTimer] = useState(900); // 15 минут
+  const [chatTimer, setChatTimer] = useState(900);
+  const [confessionTimer, setConfessionTimer] = useState(0);
+  const [isConfessionMode, setIsConfessionMode] = useState(false);
+
   const [showRoomsModal, setShowRoomsModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [showAchievementsModal, setShowAchievementsModal] = useState(false);
+  const [newAchievement, setNewAchievement] = useState<any>(null);
+
+  const [achievements, setAchievements] = useState([
+    { id: 1, name: "Первый чат", icon: "💬", unlocked: false },
+    { id: 2, name: "Щедрая душа", icon: "🎁", unlocked: false },
+    { id: 3, name: "Ночной волк", icon: "🌙", unlocked: false },
+  ]);
+
+  // Сохранение прогресса
+  useEffect(() => {
+    const saved = localStorage.getItem('roomOfSecrets');
+    if (saved) {
+      const data = JSON.parse(saved);
+      setStarsBalance(data.stars || 150);
+      setUserKarma(data.karma || 88);
+      setAchievements(data.achievements || achievements);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('roomOfSecrets', JSON.stringify({
+      stars: starsBalance,
+      karma: userKarma,
+      achievements
+    }));
+  }, [starsBalance, userKarma, achievements]);
 
   // Таймер чата
   useEffect(() => {
     let interval: any = null;
     if (activeTab === 'chat' && chatTimer > 0) {
-      interval = setInterval(() => {
-        setChatTimer(prev => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            alert("Время чата вышло!");
-            setActiveTab('lobby');
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      interval = setInterval(() => setChatTimer(p => p - 1), 1000);
     }
     return () => clearInterval(interval);
   }, [activeTab, chatTimer]);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  // Таймер исповедальни
+  useEffect(() => {
+    let interval: any = null;
+    if (isConfessionMode && confessionTimer > 0) {
+      interval = setInterval(() => {
+        setConfessionTimer(p => {
+          if (p <= 1) {
+            setIsConfessionMode(false);
+            setChatMessages(prev => [...prev, { sender: 'system', text: '🔥 Исповедь сожжена.', time: '' }]);
+            return 0;
+          }
+          return p - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isConfessionMode, confessionTimer]);
 
   const handleStartSearch = () => {
     setIsSearching(true);
     setSearchProgress(0);
 
     const interval = setInterval(() => {
-      setSearchProgress(prev => {
-        const newProgress = prev + 12;
-        if (newProgress >= 100) {
+      setSearchProgress(p => {
+        if (p >= 100) {
           clearInterval(interval);
           setIsSearching(false);
           setSelectedStranger({ name: "Незнакомец #47", tag: "#A3F9" });
           setChatMessages([{
             id: 'sys1',
             sender: 'system',
-            text: '⚠️ Чат полностью анонимен. Наслаждайтесь разговором.',
+            text: '⚠️ Чат полностью анонимен.',
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }]);
           setActiveTab('chat');
           setChatTimer(900);
           return 100;
         }
-        return newProgress;
+        return p + 12;
       });
     }, 80);
   };
@@ -79,7 +109,6 @@ export default function App() {
     setChatMessages(prev => [...prev, newMsg]);
     setMessageInput('');
 
-    // Имитация ответа
     setTimeout(() => {
       const replies = ["Интересно...", "Согласен", "А у меня было так...", "Ого!", "Ха-ха, забавно!"];
       setChatMessages(prev => [...prev, {
@@ -100,10 +129,33 @@ export default function App() {
   };
 
   const handleSendGift = (giftName: string) => {
-    setStarsBalance(prev => Math.max(0, prev - 20));
+    setStarsBalance(p => Math.max(0, p - 20));
     setShowGiftModal(false);
-    setUserKarma(prev => Math.min(100, prev + 2));
-    alert(`Подарок "${giftName}" отправлен!`);
+    setUserKarma(p => Math.min(100, p + 2));
+    
+    // Анимация подарка
+    const giftEl = document.createElement('div');
+    giftEl.textContent = giftName;
+    giftEl.style.position = 'fixed';
+    giftEl.style.fontSize = '60px';
+    giftEl.style.left = '50%';
+    giftEl.style.top = '40%';
+    giftEl.style.transition = 'all 2s';
+    giftEl.style.zIndex = '1000';
+    document.body.appendChild(giftEl);
+
+    setTimeout(() => {
+      giftEl.style.transform = 'translateY(-300px) scale(0.5)';
+      giftEl.style.opacity = '0';
+    }, 100);
+
+    setTimeout(() => document.body.removeChild(giftEl), 2500);
+  };
+
+  const unlockAchievement = (id: number) => {
+    setAchievements(prev => prev.map(a => a.id === id ? { ...a, unlocked: true } : a));
+    setNewAchievement(achievements.find(a => a.id === id));
+    setTimeout(() => setNewAchievement(null), 3000);
   };
 
   return (
@@ -129,7 +181,6 @@ export default function App() {
             
             <button 
               onClick={handleStartSearch}
-              disabled={isSearching}
               className="relative w-40 h-40 rounded-3xl bg-gradient-to-br from-purple-600 via-violet-600 to-indigo-600 flex flex-col items-center justify-center shadow-2xl shadow-purple-500/60 hover:scale-105 active:scale-95 transition-all group overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-cyan-400 opacity-30 group-hover:opacity-50 transition-opacity animate-pulse" />
@@ -161,7 +212,10 @@ export default function App() {
                   <p className="text-xs text-emerald-400">Онлайн • {formatTime(chatTimer)}</p>
                 </div>
               </div>
-              <button onClick={handleBurnBridge} className="text-red-400 text-sm">Сжечь мост 🔥</button>
+              <div className="flex gap-3">
+                <button onClick={() => setIsConfessionMode(!isConfessionMode)} className="text-purple-400 text-sm">🕯️ Исповедь</button>
+                <button onClick={handleBurnBridge} className="text-red-400 text-sm">Сжечь мост 🔥</button>
+              </div>
             </div>
 
             <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-[#050507]">
@@ -185,13 +239,7 @@ export default function App() {
                 />
                 <button type="submit" className="bg-purple-600 px-8 rounded-2xl font-medium">→</button>
               </div>
-              <button 
-                type="button"
-                onClick={() => setShowGiftModal(true)}
-                className="text-pink-400 text-xs mt-3 flex items-center gap-1"
-              >
-                🎁 Отправить подарок
-              </button>
+              <button type="button" onClick={() => setShowGiftModal(true)} className="text-pink-400 text-xs mt-3">🎁 Отправить подарок</button>
             </form>
           </div>
         )}
@@ -228,8 +276,14 @@ export default function App() {
         <div className="absolute inset-0 bg-black/90 z-50 flex items-center justify-center p-6">
           <div className="bg-[#1A1A1F] w-full max-w-md rounded-3xl p-6">
             <h3 className="text-xl font-bold mb-4">Комнаты по интересам</h3>
-            <p className="text-gray-400">Функция в разработке</p>
-            <button onClick={() => setShowRoomsModal(false)} className="mt-6 text-purple-400">Закрыть</button>
+            <div className="space-y-3">
+              {['Полуночные философы 🌙', 'Геймеры в 3 ночи 🎮', 'Стартаперы 🚀', 'Книжный клуб 📚'].map((room, i) => (
+                <button key={i} className="w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all" onClick={() => alert(`Вход в комнату: ${room}`)}>
+                  {room}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setShowRoomsModal(false)} className="mt-6 text-purple-400 w-full">Закрыть</button>
           </div>
         </div>
       )}
