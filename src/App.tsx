@@ -70,8 +70,7 @@ export default function App() {
   // --- State: New Features ---
   const [confessionSession, setConfessionSession] = useState<ConfessionSession | null>(null);
   const [confessionTimer, setConfessionTimer] = useState(0);
-  const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge>(generateDailyChallenge(new Date()));
-  const [challengeStreak, setChallengeStreak] = useState(0);
+  const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge>(() => generateDailyChallenge(new Date()));  const [challengeStreak, setChallengeStreak] = useState(0);
   const [showChallengeModal, setShowChallengeModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<TopicRoom | null>(null);
   const [showRoomsModal, setShowRoomsModal] = useState(false);
